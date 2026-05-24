@@ -1,0 +1,29 @@
+API UPLOAD FIX
+
+Use this only if the GitHub browser uploader fails on app/api nested files.
+
+Upload these two files only:
+
+1. app/api/route.js
+2. next.config.js
+
+What this does:
+- Adds one flat API dispatcher at app/api/route.js.
+- Updates next.config.js so all /api/* requests go to that single dispatcher.
+- Avoids uploading many nested API folders like [id], [businessSlug], and [...nextauth].
+
+Important:
+- Do not delete the folders you already uploaded.
+- Upload this on top of your existing repo.
+- In GitHub, keep the same paths:
+  - app/api/route.js
+  - next.config.js
+
+Simple GitHub steps:
+1. Open your repo.
+2. Click Add file.
+3. Click Upload files.
+4. Drag the app folder and next.config.js from this folder.
+5. Commit changes.
+
+If GitHub asks to replace next.config.js, allow it.
