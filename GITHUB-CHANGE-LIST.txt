@@ -1,0 +1,38 @@
+AR Studio GitHub change list
+
+Upload this full project folder to GitHub after verification.
+
+Primary pages updated:
+- app/page.jsx
+- app/pricing/page.jsx
+- app/contact/page.jsx
+- app/business/dashboard/page.jsx
+- app/super-admin/dashboard/page.jsx
+- app/b/[businessSlug]/page.jsx
+- app/b/[businessSlug]/product/[productSlug]/page.jsx
+
+Shared components updated:
+- components/dashboards/DashboardShell.jsx
+- components/dashboards/StatGrid.jsx
+- components/public/ProductCard.jsx
+- components/public/ProductActions.jsx
+- components/ar/ModelViewer.jsx
+- eslint.config.mjs
+
+What changed:
+- Premium AR commerce landing page and clearer demo CTAs.
+- Better pricing comparison with Growth highlighted as recommended.
+- Stronger contact/demo conversion copy around the existing demo form.
+- Business owner action center with usage, AR slots, scans, leads, billing, and next actions.
+- Super-admin command center with revenue, costs, outstanding, approvals, business health, and audit logs.
+- Polished public catalogue and product pages for QR visitors.
+- Cleaner dashboard navigation grouping and upgraded stat cards.
+- Local ESLint config added so `npm run lint` works from the clean GitHub folder.
+
+Do not upload:
+- .env
+- .env.local
+- .next
+- node_modules
+- .vercel
+- local logs
