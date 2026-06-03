@@ -59,7 +59,7 @@ export function ContactDemoForm() {
     setForm(emptyForm);
     setSuccess(data.message || "Demo request received. We will contact you soon.");
     if (data.emailSent === false) {
-      setWarning(data.emailError || "Email was not sent. Check RESEND_API_KEY, CONTACT_TO_EMAIL, and CONTACT_FROM_EMAIL in Vercel.");
+      setWarning(data.emailError || "Email was not sent. Check RESEND_API_KEY, CONTACT_TO_EMAIL, and CONTACT_FROM_EMAIL=AR Design Studio <demo@ar.bsocio.in.");
     } else if (data.ticketSaved === false && data.ticketError) {
       setWarning(`Email was sent, but the support ticket was not saved: ${data.ticketError}`);
     }
