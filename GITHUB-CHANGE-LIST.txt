@@ -1,0 +1,72 @@
+AR Studio GitHub change list
+
+Upload this full project folder to GitHub after verification.
+
+Primary pages updated:
+- app/page.jsx
+- app/pricing/page.jsx
+- app/contact/page.jsx
+- app/sweet-shops/page.jsx
+- app/restaurants/page.jsx
+- app/furniture/page.jsx
+- app/jewellery/page.jsx
+- app/real-estate/page.jsx
+- app/boutiques/page.jsx
+- app/automobile/page.jsx
+- app/electronics/page.jsx
+- app/business/dashboard/page.jsx
+- app/team/login/page.jsx
+- app/super-admin/dashboard/page.jsx
+- app/super-admin/demo-requests/page.jsx
+- app/b/[businessSlug]/page.jsx
+- app/b/[businessSlug]/product/[productSlug]/page.jsx
+- app/api/demo-requests/route.js
+- app/api/upload/route.js
+- public/robots.txt
+- public/sitemap.xml
+- public/og-image.jpg
+
+Shared components updated:
+- components/dashboards/DashboardShell.jsx
+- components/dashboards/DemoRequestManager.jsx
+- components/dashboards/StatGrid.jsx
+- components/forms/ContactDemoForm.jsx
+- components/public/IndustryLandingPage.jsx
+- components/public/ProductCard.jsx
+- components/public/ProductActions.jsx
+- components/public/WhatsAppButton.jsx
+- components/ar/ModelViewer.jsx
+- lib/marketing.js
+- eslint.config.mjs
+
+What changed:
+- Added homepage SEO title, meta description, canonical URL, Open Graph tags, Twitter card tags, SoftwareApplication schema, and FAQPage schema.
+- Added robots.txt, sitemap.xml, and an Open Graph image.
+- Added SEO landing pages for sweet shops, restaurants, furniture, jewellery, real estate, boutiques, automobile, and electronics.
+- Added internal links from homepage and industry pages for better crawl structure.
+- Added Team Login to the homepage top navigation and footer so staff can reach `/team/login` directly.
+- Added WhatsApp CTA using +91 7355008986.
+- Added SEO-INDEXING-HANDOFF.md with Google Search Console next steps.
+- Premium AR commerce landing page and clearer demo CTAs.
+- Better pricing comparison with Growth highlighted as recommended.
+- Stronger contact/demo conversion copy around the existing demo form.
+- Demo requests now save to backend/email support before WhatsApp follow-up.
+- Super Admin can approve one-product free demo workspaces with one AR slot.
+- Demo request approvals create or update trial client workspaces and show a temporary owner password only when a new owner login is created.
+- AR button now opens the best available live 3D/AR experience and tracks AR intent.
+- Cloudinary uploads are grouped under client-specific folders by business slug.
+- Added .env.example and BUSINESS-VIABILITY-CHANGES.md.
+- Business owner action center with usage, AR slots, scans, leads, billing, and next actions.
+- Super-admin command center with revenue, costs, outstanding, approvals, business health, and audit logs.
+- Polished public catalogue and product pages for QR visitors.
+- Cleaner dashboard navigation grouping and upgraded stat cards.
+- Local ESLint config added so `npm run lint` works from the clean GitHub folder.
+- Removed the unused placeholder `app/api/auth/[...nextauth]` route because the app uses custom JWT auth and that folder name can confuse GitHub web uploads.
+
+Do not upload:
+- .env
+- .env.local
+- .next
+- node_modules
+- .vercel
+- local logs
