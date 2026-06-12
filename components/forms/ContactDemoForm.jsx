@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-const demoWhatsAppNumber = process.env.NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER || "917355008986";
+const demoWhatsAppNumber = process.env.NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER || "917009464475";
 
 const emptyForm = {
   businessName: "",
@@ -86,7 +86,7 @@ export function ContactDemoForm() {
       {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-black text-red-700">{error}</p> : null}
       <Button type="submit" variant="accent" disabled={submitting}><MessageCircle size={18} /> {submitting ? "Saving request..." : "Request free demo"}</Button>
       <a href={whatsappUrl} target="_blank" rel="noreferrer" className="text-center text-sm font-black text-brand">
-        Prefer direct chat? Open WhatsApp: +91 73550 08986
+        Prefer direct chat? Open WhatsApp: +91 70094 64475
       </a>
     </form>
   );
