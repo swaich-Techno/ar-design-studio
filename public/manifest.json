@@ -1,0 +1,49 @@
+{
+  "name": "AR Design Studio",
+  "short_name": "AR Studio",
+  "description": "QR, 3D, AR, WhatsApp leads, and analytics SaaS.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "categories": ["business", "productivity", "shopping"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Business Login",
+      "short_name": "Business",
+      "url": "/business/login"
+    },
+    {
+      "name": "Staff Login",
+      "short_name": "Staff",
+      "url": "/staff/login"
+    },
+    {
+      "name": "Super Admin",
+      "short_name": "Admin",
+      "url": "/super-admin/login"
+    }
+  ]
+}
