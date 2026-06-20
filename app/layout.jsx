@@ -2,6 +2,7 @@ import "./globals.css";
 import { PWARegister } from "@/components/public/PWARegister";
 import { MarketingPixels } from "@/components/public/MarketingPixels";
 import { ConversionTracker } from "@/components/public/ConversionTracker";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
   metadataBase: new URL("https://ar.bsocio.in"),
@@ -45,6 +46,7 @@ export default function RootLayout({ children }) {
         <ConversionTracker />
         <PWARegister />
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
