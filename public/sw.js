@@ -19,7 +19,7 @@ self.addEventListener("fetch",event=>{
   if(/^\/(?:api|business|super-admin|staff|team)(?:\/|$)/.test(url.pathname) || request.headers.get("rsc")==="1") return;
   const navigation=request.mode==="navigate";
   const publicPage=url.pathname==="/" || url.pathname===OFFLINE_URL || /^\/ar(?:\/|$)/.test(url.pathname);
-  const asset=/^\/(?:_next\/static|icons|brand|redesign)\//.test(url.pathname) || url.pathname==="/manifest.json";
+  const asset=/^\/(?:_next\/static|icons|brand|redesign|photo-studio\/demo)\//.test(url.pathname) || url.pathname==="/manifest.json";
   if(!(navigation&&publicPage) && !asset) return;
   event.respondWith((async()=>{
     try{

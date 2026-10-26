@@ -1,7 +1,8 @@
 "use client";
-import {useEffect,useRef,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import {Upload,Box,Download,ArrowRight,Rotate3D,WifiOff,QrCode,Check,LoaderCircle,ImageIcon,Layers,ShieldCheck} from "lucide-react";
+import {loadStudioDemo,STUDIO_DEMO} from "@/lib/photo3d/demo.mjs";
 import {PhotoModelPreview} from "./model-preview";
 import {validateImage,imageMagicMatches,validateGlb,friendlyGenerationError,validatePublishedProductUrl} from "@/lib/photo3d/validation.mjs";
 import {saveDraft,listDrafts,deleteDraft,cacheStudioShell} from "@/lib/photo3d/storage.mjs";
@@ -26,6 +27,22 @@ function download(blob,name) {
   const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function useBlobUrl(blob){const[url,setUrl]=useState("");useEffect(()=>{if(!blob){setUrl("");return;}const next=URL.createObjectURL(blob);setUrl(next);return()=>URL.revokeObjectURL(next);},[blob]);return url;}
+
+function DemoPhoneLink(){
+  const[qr,setQr]=useState("");const[url,setUrl]=useState("");
+  useEffect(()=>{
+    let active=true;
+    const target=new URL("/ar/create?demo=avocado",location.origin).href;
+    setUrl(target);
+    import("qrcode").then(module=>module.default.toDataURL(target,{width:200,margin:4,errorCorrectionLevel:"M"})).then(value=>{if(active)setQr(value);}).catch(()=>{});
+    return()=>{active=false;};
+  },[]);
+  return <aside className={styles.demoPhone} aria-label="Open the demo on your phone">
+    {qr?<img src={qr} alt="Scan to open the avocado demo on your phone" width="144" height="144"/>:null}
+    <div><h3>Test AR on your phone</h3><p>Scan this QR with your phone camera, then tap <strong>See in my space</strong> if your browser supports AR. On a computer, drag to rotate and scroll to zoom.</p><a href={url||"/ar/create?demo=avocado"}>Open the demo link <ArrowRight aria-hidden="true" size={16}/></a></div>
+  </aside>;
+}
+
 function ProductQR(){
   const urlRef=useRef(null);
   const[value,setValue]=useState("");const[qr,setQr]=useState("");const[error,setError]=useState("");const[busy,setBusy]=useState(false);
@@ -55,21 +72,40 @@ export function PhotoStudio(){
   const[source,setSource]=useState("ai");const[consent,setConsent]=useState(false);const[busy,setBusy]=useState(false);const[saving,setSaving]=useState(false);
   const[stage,setStage]=useState("");const[error,setError]=useState("");const[notice,setNotice]=useState("");const[warning,setWarning]=useState("");
   const[saved,setSaved]=useState([]);const[online,setOnline]=useState(true);const[id,setId]=useState("");const[viewerReady,setViewerReady]=useState(false);
-  const run=useRef(0);const controller=useRef(null);
+  const run=useRef(0);const controller=useRef(null);const resultRef=useRef(null);
+  const[demoLoading,setDemoLoading]=useState(false);
   const[photoError,setPhotoError]=useState("");const[pendingRemoval,setPendingRemoval]=useState("");
   const photoUrl=useBlobUrl(photo);const modelUrl=useBlobUrl(model);
   async function refreshSaved(){try{setSaved(await listDrafts());}catch{/* In-memory generation still works if browser storage is unavailable. */}}
   useEffect(()=>{setOnline(navigator.onLine);refreshSaved();const update=()=>setOnline(navigator.onLine);window.addEventListener("online",update);window.addEventListener("offline",update);return()=>{window.removeEventListener("online",update);window.removeEventListener("offline",update);controller.current?.abort();};},[]);
+  const loadDemo=useCallback(async()=>{
+    const token=++run.current;controller.current?.abort();const abort=new AbortController();controller.current=abort;
+    setDemoLoading(true);setBusy(false);setError("");setPhotoError("");setNotice("");
+    try{
+      const sample=await loadStudioDemo({signal:abort.signal});
+      if(run.current!==token)return;
+      setName(sample.name);setPhoto(sample.photo);setModel(sample.model);setViews([]);setSource("demo");setConsent(false);
+      setId(crypto.randomUUID());setViewerReady(false);setWarning("");
+      setStage("Prebuilt demo model loaded. No AI generation was run.");
+    }catch(err){if(run.current===token&&err.name!=="AbortError")setError(err.message||"The demo could not be loaded. Try again.");}
+    finally{if(run.current===token)setDemoLoading(false);}
+  },[]);
+  useEffect(()=>{if(new URLSearchParams(location.search).get("demo")===STUDIO_DEMO.key)loadDemo();},[loadDemo]);
+  useEffect(()=>{
+    if(source!=="demo"||!model)return;
+    const frame=requestAnimationFrame(()=>resultRef.current?.scrollIntoView({block:"start",behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}));
+    return()=>cancelAnimationFrame(frame);
+  },[model,source]);
   async function choosePhoto(file){
     if(!file)return;
     setPhotoError("");setError("");setNotice("");
-    try{const prepared=await preparePhoto(file);run.current++;controller.current?.abort();setBusy(false);setPhoto(prepared);setModel(null);setViewerReady(false);setViews([]);setWarning("");setStage("");setSource("ai");setId(crypto.randomUUID());setName(file.name.replace(/\.[^.]+$/,"").slice(0,100));}
+    try{const prepared=await preparePhoto(file);run.current++;controller.current?.abort();setBusy(false);setDemoLoading(false);setPhoto(prepared);setModel(null);setViewerReady(false);setViews([]);setWarning("");setStage("");setSource("ai");setId(crypto.randomUUID());setName(file.name.replace(/\.[^.]+$/,"").slice(0,100));}
     catch(err){setPhotoError(err.message);}
   }
   async function generate(){
     if(!photo || !consent || busy)return;
     if(!navigator.onLine){setError("Generating a new model needs internet. Your saved previews can still be opened below.");return;}
-    const token=++run.current;const abort=new AbortController();controller.current=abort;setBusy(true);setError("");setWarning("");setNotice("");setModel(null);setViews([]);setViewerReady(false);
+    const token=++run.current;const abort=new AbortController();controller.current=abort;setBusy(true);setSource("ai");setError("");setWarning("");setNotice("");setModel(null);setViews([]);setViewerReady(false);
     try{
       const {generateFromPhoto}=await import("@/lib/photo3d/remote.mjs");
       const result=await generateFromPhoto(photo,{signal:abort.signal,onStage:text=>{if(run.current===token)setStage(text);},onPreview:items=>{if(run.current===token)setViews(items);}});
@@ -96,7 +132,7 @@ export function PhotoStudio(){
     }catch(err){setError(err.message);}
     finally{setSaving(false);}
   }
-  async function openDraft(item){run.current++;controller.current?.abort();setBusy(false);setId(item.id);setName(item.name);setPhoto(item.photo);setModel(item.model||null);setViewerReady(false);setViews(item.views||[]);setSource(item.source||"imported");setWarning("");setError("");setNotice("Opened your saved draft.");setStage(item.model?"Saved 3D model loaded.":"Saved angle previews loaded. No 3D model is attached.");}
+  async function openDraft(item){run.current++;controller.current?.abort();setBusy(false);setDemoLoading(false);setId(item.id);setName(item.name);setPhoto(item.photo);setModel(item.model||null);setViewerReady(false);setViews(item.views||[]);setSource(item.source||"imported");setWarning("");setError("");setNotice("Opened your saved draft.");setStage(item.model?"Saved 3D model loaded.":"Saved angle previews loaded. No 3D model is attached.");}
   async function removeDraft(item){try{await deleteDraft(item.id);setPendingRemoval("");await refreshSaved();setNotice("Saved draft removed from this browser.");}catch(err){setError(err.message);}}
   async function openDashboard(){setSaving(true);setError("");try{const d=draft();await saveDraft(d);location.assign("/business/products/new?photoDraft="+encodeURIComponent(d.id));}catch(err){setError(err.message);}finally{setSaving(false);}}
   const ready=Boolean(model||views.length);
@@ -109,6 +145,11 @@ export function PhotoStudio(){
       </div>
       <div className={styles.availability}><ShieldCheck aria-hidden="true"/><div><strong>No paid API fallback</strong><span>{online?"Online generation. Free GPU limits apply.":"Offline. Open a saved preview below."}</span></div></div>
     </header>
+    <div className={styles.demoBar}>
+      <img src={STUDIO_DEMO.photo} alt="Avocado demo image" width="64" height="64"/>
+      <div><strong>Just exploring? Start with the avocado.</strong><p>A sample image and matching prebuilt 3D model. No AI queue or processing fee.</p></div>
+      <Button type="button" variant="ghost" className={styles.secondary} disabled={busy||demoLoading} onClick={loadDemo}>{demoLoading?<LoaderCircle aria-hidden="true" className={styles.spin} size={16}/>:<Box aria-hidden="true" size={16}/>} {demoLoading?"Loading demo…":"Try demo 3D"}</Button>
+    </div>
     <ol className={styles.steps} aria-label="Photo studio workflow">
       {["Upload a photo","Generate views + 3D","Save or publish","Share a product QR"].map((text,i)=><li key={text} aria-current={i===currentStep?"step":undefined} data-state={i<currentStep?"done":i===currentStep?"current":"upcoming"}><span>{i<currentStep?<Check aria-hidden="true"/>:i+1}</span>{text}</li>)}
     </ol>
@@ -118,31 +159,32 @@ export function PhotoStudio(){
         <p id="photo-help" className={styles.muted}>One clear object, fully in frame. PNG, JPG or WebP, up to 10 MB.</p>
         <label htmlFor="studio-photo" className={styles.upload}>
           {photoUrl?<img src={photoUrl} alt="Your selected product photograph" width="480" height="320"/>:<><Upload aria-hidden="true"/><strong>Choose a product photograph</strong><span>Click to browse your device</span></>}
-          <input id="studio-photo" name="productPhoto" aria-label={photo?"Change product photograph":"Choose a product photograph"} aria-invalid={Boolean(photoError)} aria-describedby="photo-help photo-error" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e=>choosePhoto(e.target.files?.[0])}/>
+          <input id="studio-photo" name="productPhoto" aria-label={photo?"Change product photograph":"Choose a product photograph"} aria-invalid={Boolean(photoError)} aria-describedby="photo-help photo-error" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy||demoLoading} onChange={e=>choosePhoto(e.target.files?.[0])}/>
         </label>
         {photo?<p className={styles.fileReady}><Check aria-hidden="true"/>Photo ready <span>Click the photo to replace it</span></p>:null}
         {photoError?<p id="photo-error" role="alert" className={styles.error}>{photoError}</p>:<span id="photo-error"/>}
         <div className={styles.photoGuide}><Layers aria-hidden="true"/><p>Use a plain, light background or a transparent PNG. Background clutter can become part of the model.</p></div>
         <label className={styles.label} htmlFor="studio-name">Product name</label>
-        <input id="studio-name" name="productName" autoComplete="off" value={name} maxLength={100} onChange={e=>setName(e.target.value)} placeholder="e.g. Signature cake…" disabled={busy}/>
-        <label className={styles.consent}><input type="checkbox" name="processingConsent" checked={consent} disabled={busy} onChange={e=>setConsent(e.target.checked)}/><span>Send this product photo to Microsoft’s public TRELLIS.2 demo on Hugging Face for processing. Use photos you have permission to share.</span></label>
-        <Button type="button" variant="gold" className={styles.primary} disabled={!photo||!consent||busy||!online} onClick={generate}>{busy?<LoaderCircle aria-hidden="true" size={18} className={styles.spin}/>:<Box aria-hidden="true" size={18}/>} {busy?"Generating…":"Generate views + 3D"}</Button>
+        <input id="studio-name" name="productName" autoComplete="off" value={name} maxLength={100} onChange={e=>setName(e.target.value)} placeholder="e.g. Signature cake…" disabled={busy||demoLoading}/>
+        <label className={styles.consent}><input type="checkbox" name="processingConsent" checked={consent} disabled={busy||demoLoading} onChange={e=>setConsent(e.target.checked)}/><span>Send this product photo to Microsoft’s public TRELLIS.2 demo on Hugging Face for processing. Use photos you have permission to share.</span></label>
+        <Button type="button" variant="gold" className={styles.primary} disabled={!photo||!consent||busy||demoLoading||!online} onClick={generate}>{busy?<LoaderCircle aria-hidden="true" size={18} className={styles.spin}/>:<Box aria-hidden="true" size={18}/>} {busy?"Generating…":"Generate views + 3D"}</Button>
         {busy?<Button type="button" onClick={cancel} variant="ghost" className={styles.secondary}>Cancel generation</Button>:null}
         <p className={styles.small}>Your photo stays local until you press Generate. Free service queues and daily GPU limits apply. There is no automatic retry, subscription, or paid fallback.</p>
-        <details className={styles.details}><summary>Already have a GLB model?</summary><p>Import a self-contained GLB up to 25 MB. It stays local until you publish.</p><label htmlFor="studio-model">Import GLB model</label><input id="studio-model" type="file" accept=".glb,model/gltf-binary" disabled={busy||!photo} onChange={e=>importModel(e.target.files?.[0])}/></details>
+        <details className={styles.details}><summary>Already have a GLB model?</summary><p>Import a self-contained GLB up to 25 MB. It stays local until you publish.</p><label htmlFor="studio-model">Import GLB model</label><input id="studio-model" type="file" accept=".glb,model/gltf-binary" disabled={busy||demoLoading||!photo} onChange={e=>importModel(e.target.files?.[0])}/></details>
       </section>
-      <section className={styles.card} aria-label="Generation result" aria-busy={busy}>
-        <div className={styles.resultHeading}><div><div className={styles.sectionTitle}><Rotate3D aria-hidden="true"/><h2>{model?"Explore your model":views.length?"Your angle previews":"Your 3D preview"}</h2></div></div><span className={styles.tag}>{model?(source==="ai"?"AI-generated 3D":"Imported 3D"):views.length?"Angles only":busy?"Generating…":photo?"Photo ready":"Awaiting photo"}</span></div>
-        {modelUrl?<PhotoModelPreview src={modelUrl} name={name||"Product"} onReady={()=>setViewerReady(true)}/>:<div className={styles.empty}>{views.length?<img src={views[0].src} alt="First AI-generated product view" width="480" height="360"/>:photoUrl?<><img src={photoUrl} alt="Source photograph, awaiting 3D generation" width="480" height="360"/><span className={styles.sourceLabel}>Source photo. 3D has not been generated.</span></>:<><Box aria-hidden="true" size={56} strokeWidth={1}/><strong>A new perspective starts here</strong><p>Choose your photo, then generate. Your interactive model and angle previews will appear here.</p></>}</div>}
+      <section ref={resultRef} id="studio-result" className={styles.card} aria-label="Generation result" aria-busy={busy||demoLoading}>
+        <div className={styles.resultHeading}><div><div className={styles.sectionTitle}><Rotate3D aria-hidden="true"/><h2>{model?"Explore your model":views.length?"Your angle previews":"Your 3D preview"}</h2></div></div><span className={styles.tag}>{model?(source==="demo"?"Demo 3D":source==="ai"?"AI-generated 3D":"Imported 3D"):views.length?"Angles only":busy?"Generating…":photo?"Photo ready":"Awaiting photo"}</span></div>
+        {modelUrl?<PhotoModelPreview src={modelUrl} name={name||"Product"} source={source} onReady={()=>setViewerReady(true)}/>:<div className={styles.empty}>{views.length?<img src={views[0].src} alt="First AI-generated product view" width="480" height="360"/>:photoUrl?<><img src={photoUrl} alt="Source photograph, awaiting 3D generation" width="480" height="360"/><span className={styles.sourceLabel}>Source photo. 3D has not been generated.</span></>:<><Box aria-hidden="true" size={56} strokeWidth={1}/><strong>A new perspective starts here</strong><p>Choose your photo, then generate. Your interactive model and angle previews will appear here.</p></>}</div>}
         <div className={styles.status} role="status" aria-live="polite">{busy?<LoaderCircle aria-hidden="true" className={styles.spin} size={17}/>:ready?<Check aria-hidden="true" size={17}/>:<Box aria-hidden="true" size={17}/>}<span>{stage||(photo?(consent?"Ready to generate. Your photo has not been sent yet.":"Photo ready. Allow processing to enable generation."):"Choose a photograph to get started.")}</span></div>
         {warning?<p className={styles.warning} role="status">{warning}</p>:null}
+        {source==="demo"&&model?<><DemoPhoneLink/><p className={styles.small}>Demo asset: {STUDIO_DEMO.credit}. <a href={STUDIO_DEMO.source} target="_blank" rel="noopener noreferrer">CC0 source and credit</a>. The image is a reference render of this prebuilt model.</p></>:null}
         <p className={styles.small}>AI estimates hidden surfaces. Colours, labels, shape, and physical size may differ from the real product. Camera AR requires a supported phone.</p>
         {views.length?<div className={styles.gallery} aria-label="AI-generated angle previews">{views.map((view,i)=><figure key={i}><img src={view.src} alt={view.label+" — AI estimate"} width="240" height="240" loading="lazy"/><figcaption>{view.label}<a href={view.src} download={"product-view-"+(i+1)+".png"} aria-label={"Download "+view.label}><Download aria-hidden="true" size={14}/></a></figcaption></figure>)}</div>:null}
         {ready?<div className={styles.actions}>
           {model?<Button type="button" variant="gold" className={styles.primary} onClick={()=>download(model,"b-socio-product.glb")}><Download aria-hidden="true" size={16}/>Download GLB</Button>:null}
           <Button type="button" variant="ghost" className={styles.secondary} disabled={saving||busy} onClick={()=>save(false)}>{saving?"Saving…":"Save draft"}</Button>
           <Button type="button" variant="ghost" className={styles.secondary} disabled={saving||busy||!online||(Boolean(model)&&!viewerReady)} onClick={()=>save(true)}><WifiOff aria-hidden="true" size={16}/>Save for offline</Button>
-          {model?<Button type="button" variant="ghost" className={styles.secondary} disabled={saving||busy} onClick={openDashboard}>Continue to publishing <ArrowRight aria-hidden="true" size={16}/></Button>:null}
+          {model&&source!=="demo"?<Button type="button" variant="ghost" className={styles.secondary} disabled={saving||busy} onClick={openDashboard}>Continue to publishing <ArrowRight aria-hidden="true" size={16}/></Button>:null}
         </div>:null}
         {notice?<p role="status" className={styles.notice}>{notice}</p>:null}
         {error?<p role="alert" className={styles.error}>{error}</p>:null}

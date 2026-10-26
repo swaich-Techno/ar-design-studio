@@ -158,3 +158,22 @@
 .modelViewer {display:block;width:100%;height:min(58vh,460px);background:var(--studio-photo);border-radius:var(--studio-control-radius)}
 .studio .arButton {position:absolute;bottom:16px;left:16px;min-height:46px;padding:12px 18px;background:var(--studio-accent);color:var(--studio-on-accent);border-radius:var(--studio-control-radius);border:0;font-size:14px;font-weight:500;cursor:pointer}
 .viewerHelp {padding:12px 0 0;margin:0;font-size:12px;line-height:1.65;color:var(--studio-muted)}
+
+.demoBar {display:flex;align-items:center;gap:16px;border-top:1px solid var(--studio-line);padding:20px 0;margin-bottom:4px}
+.demoBar>img {width:64px;height:64px;object-fit:contain;border-radius:var(--studio-control-radius);background:var(--studio-photo);flex-shrink:0}
+.demoBar>div {flex:1;min-width:0}
+.demoBar strong {font-size:14px;font-weight:500}
+.demoBar p {font-size:12px;line-height:1.6;color:var(--studio-muted);margin:5px 0 0}
+.demoPhone {display:flex;align-items:center;gap:20px;border-top:1px solid var(--studio-line);padding-top:22px;margin-top:24px}
+.demoPhone>img {flex-shrink:0;width:144px;height:144px;border-radius:var(--studio-control-radius);background:var(--studio-photo)}
+.demoPhone h3 {font-size:16px;font-weight:500;margin:0 0 8px}
+.demoPhone p {font-size:13px;line-height:1.65;color:var(--studio-muted);margin:0}
+.demoPhone a,.small a {display:inline-flex;align-items:center;gap:8px;color:var(--studio-accent);min-height:44px;text-decoration:underline;text-underline-offset:4px;font-size:13px}
+@media(max-width:760px) {
+  .demoBar {flex-wrap:wrap;gap:12px}
+  .demoBar>div {flex-basis:calc(100% - 80px)}
+  .demoBar>button {width:100%}
+  .demoPhone {flex-direction:column;align-items:flex-start}
+}
+
+.card[id="studio-result"] {scroll-margin-top:108px}

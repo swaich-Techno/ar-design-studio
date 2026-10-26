@@ -13,7 +13,7 @@
     "generate:try-on-ring": "node scripts/generate-tryon-ring.mjs",
     "generate:try-on-assets": "python3 scripts/process-tryon-assets.py",
     "generate:try-on-neck": "node scripts/generate-tryon-neck.mjs",
-    "test:photo-studio": "node --test tests/photo-studio.test.mjs"
+    "test:photo-studio": "node --test tests/photo-studio.test.mjs tests/photo-studio-demo.test.mjs"
   },
   "dependencies": {
     "@google/model-viewer": "^4.1.0",

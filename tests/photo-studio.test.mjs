@@ -151,3 +151,11 @@ test("generation consent guard respects the trusted reverse proxy host",async()=
  const request=new Request("http://localhost:3000/api/photo-studio/generate",{method:"POST",headers:{Origin:"https://ar.bsocio.in","x-forwarded-host":"ar.bsocio.in","x-forwarded-proto":"https"},body:form});
  assert.equal((await handleGeneration(request,{limit:allowAttempt})).status,400);
 });
+
+test("public demo assets are cached and reopened offline",async()=>{
+  const w=worker();w.setFetch(new Response("demo-model",{headers:{"cache-control":"public, max-age=3600"}}));
+  assert.equal(await(await w.request("/photo-studio/demo/avocado.glb",{mode:"cors"})).text(),"demo-model");
+  w.setFetch(null);
+  assert.equal(await(await w.request("/photo-studio/demo/avocado.glb",{mode:"cors"})).text(),"demo-model");
+  assert.equal(await w.request("/photo-studio/private.glb",{mode:"cors"}),undefined);
+});
