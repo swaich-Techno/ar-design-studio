@@ -32,12 +32,12 @@ test("existing embedded demo GLB remains compatible",async()=>{
   const bytes=await fs.readFile(new URL("../public/redesign/demo/signature-molten-lava-cake.glb",import.meta.url));
   assert.doesNotThrow(()=>validateGlb(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength)));
 });
-test("extracts image data without rendering provider HTML",()=>{
-  const html='<script>alert(1)</script><img id="view-m0-s1" src="data:image/png;base64,AQ=="><img src="data:image/png;base64,AA==" id="view-m0-s0"><img id="view-m1-s0" src="data:image/png;base64,Ag=="><img id="view-m0-s2" src="https://evil.example/a.png">';
+test("extracts shaded colour views and ignores normal maps and provider HTML",()=>{
+  const html='<script>alert(1)</script><img id="view-m3-s1" src="data:image/png;base64,AQ=="><img src="data:image/png;base64,AA==" id="view-m3-s0"><img id="view-m0-s0" src="data:image/png;base64,Ag=="><img id="view-m3-s2" src="https://evil.example/a.png">';
   const views=extractPreviewViews([html]);assert.equal(views.length,2);assert.equal(views[0].src,"data:image/png;base64,AA==");assert.ok(views.every(v=>!v.src.includes("<")));
 });
 test("bounds and deduplicates the generated view gallery",()=>{
-  const html=Array.from({length:12},(_,i)=>'<img id="view-m0-s'+i+'" src="data:image/png;base64,AA==">').join("");
+  const html=Array.from({length:12},(_,i)=>'<img id="view-m3-s'+i+'" src="data:image/png;base64,AA==">').join("");
   assert.equal(extractPreviewViews([html+html]).length,8);
   assert.deepEqual(extractPreviewViews(["<h1>No views</h1>"]),[]);
 });
@@ -89,4 +89,17 @@ test("activation removes old owned caches and preserves offline drafts cache",as
   const w=worker();for(const name of ["ar-design-studio-v2","bsocio-public-v2","bsocio-photo-studio-v1","unrelated-cache"])await w.caches.open(name);
   let pending;w.handlers.activate({waitUntil:p=>{pending=p;}});await pending;
   assert.deepEqual(await w.caches.keys(),["bsocio-photo-studio-v1","unrelated-cache"]);
+});
+
+
+const {generateFromPhoto}=await import("../lib/photo3d/engine.mjs");
+test("completed previews survive a free export quota rejection",async()=>{
+  let preview,closed=0;const calls=[];
+  const client={async predict(endpoint){calls.push(endpoint);if(endpoint==="/extract_glb")throw new Error("ZeroGPU quota exceeded");return{};},async *submit(){yield{type:"data",data:['<img id="view-m3-s0" src="data:image/png;base64,AA==">']};},close(){closed++;}};
+  const result=await generateFromPhoto(new Blob(["test"]),{clientFactory:async()=>client,onPreview:views=>{preview=views;}});
+  assert.equal(result.model,null);assert.equal(result.views.length,1);assert.equal(preview.length,1);assert.match(result.warning,/No paid fallback/);assert.deepEqual(calls,["/start_session","/extract_glb"]);assert.equal(closed,1);
+});
+test("cancelled generation never opens a provider session",async()=>{
+  const controller=new AbortController();controller.abort();let connections=0;
+  await assert.rejects(generateFromPhoto(new Blob(["test"]),{signal:controller.signal,clientFactory:async()=>{connections++;}}),/cancelled/i);assert.equal(connections,0);
 });
