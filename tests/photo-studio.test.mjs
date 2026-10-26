@@ -145,3 +145,9 @@ test("truncated generation streams cannot report success",async()=>{
   const response=new Response('{"type":"stage","message":"Generating"}\n');
   await assert.rejects(readGenerationResponse(response),/before generation finished/);
 });
+
+test("generation consent guard respects the trusted reverse proxy host",async()=>{
+ const form=new FormData();form.append("consent","false");
+ const request=new Request("http://localhost:3000/api/photo-studio/generate",{method:"POST",headers:{Origin:"https://ar.bsocio.in","x-forwarded-host":"ar.bsocio.in","x-forwarded-proto":"https"},body:form});
+ assert.equal((await handleGeneration(request,{limit:allowAttempt})).status,400);
+});

@@ -16,7 +16,7 @@ Scope: add an experimental, zero-paid-API photo-to-3D creation route to the exis
 
 ## Completed checks
 
-- 28 automated feature checks passed, including malformed assets, external model dependencies, shaded-view selection, quota failure preservation, cancellation, QR restrictions, and offline routing.
+- 29 automated feature checks passed, including malformed assets, external model dependencies, shaded-view selection, quota failure preservation, cancellation, QR restrictions, and offline routing.
 - Existing 16 smoke assertions passed.
 - Production build passed. Focused lint passed with direct-image warnings and an existing unused navigation prop warning.
 - Browser: photo upload, consent gating, external QR rejection, GLB import/rendering, offline save completion, full reload and saved-draft reopening passed.
@@ -41,3 +41,5 @@ Browser access to the external service failed. The browser now uses a same-origi
 - Browser cleanup can remove local drafts. Download important GLB files.
 
 The current production source was recovered from Vercel before feature work because GitHub's main branch did not contain the newer deployed food AR pages.
+
+The origin guard uses the reverse proxy host/protocol and was verified through the actual Next.js route: an unconsented same-site request returns HTTP 400; cross-origin requests return HTTP 403.
