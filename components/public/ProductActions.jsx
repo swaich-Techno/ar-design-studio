@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin, MessageCircle, Phone, Rotate3D, ScanLine, Share2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { trackPublicEvent } from "@/components/public/PublicTracker";
 
@@ -9,15 +10,25 @@ function cleanPhone(value) {
 }
 
 export function ProductActions({ business, product, tableNumber, campaignTitle }) {
-  const price = product.discountPrice || product.price || 0;
+  const variants = Array.isArray(product.variants) ? product.variants.filter((item) => item?.name) : [];
+  const addons = Array.isArray(product.addons) ? product.addons.filter((item) => item?.name) : [];
+  const [variantName, setVariantName] = useState(variants[0]?.name || "");
+  const selectedVariant = variants.find((item) => item.name === variantName);
+  const price = Number(product.discountPrice || product.price || 0) + Number(selectedVariant?.priceDelta || selectedVariant?.price || 0);
   const basePayload = { businessSlug: business.slug, productSlug: product.slug };
-  const outOfStock = product.stockStatus === "OUT_OF_STOCK";
+  const outOfStock = product.stockStatus === "OUT_OF_STOCK" || product.isSoldOut;
   const hasLiveAR = Boolean(product.modelGlbUrl || product.modelUsdzUrl);
-  const message = tableNumber
-    ? `Hello, I want to order ${product.name} from ${business.businessName}. Table Number: ${tableNumber}. Please confirm availability.`
-    : campaignTitle
-      ? `Hello, I am interested in ${campaignTitle} offer from ${business.businessName}. Please share details.`
-      : `Hello, I am interested in ${product.name} from ${business.businessName}. Price: ${price}. Please share more details.`;
+  const message = useMemo(() => {
+    const variantBit = variantName ? ` Variant: ${variantName}.` : "";
+    const addonBit = addons.length ? ` Add-ons available: ${addons.map((item) => item.name).join(", ")}.` : "";
+    if (tableNumber) {
+      return `Hello, I want to order ${product.name}${variantBit} from ${business.businessName}. Table Number: ${tableNumber}.${addonBit} Please confirm availability.`;
+    }
+    if (campaignTitle) {
+      return `Hello, I am interested in ${campaignTitle} offer from ${business.businessName}. Please share details.`;
+    }
+    return `Hello, I am interested in ${product.name}${variantBit} from ${business.businessName}. Price: ${price}.${addonBit} Please share more details.`;
+  }, [addons, business.businessName, campaignTitle, price, product.name, tableNumber, variantName]);
   const whatsapp = `https://wa.me/${cleanPhone(business.whatsapp)}?text=${encodeURIComponent(message)}`;
 
   async function share() {
@@ -46,20 +57,33 @@ export function ProductActions({ business, product, tableNumber, campaignTitle }
 
   return (
     <div className="grid gap-3">
+      {variants.length ? (
+        <label className="text-sm font-bold text-slate-600">
+          Variant
+          <select className="field mt-1 min-h-11" value={variantName} onChange={(event) => setVariantName(event.target.value)}>
+            {variants.map((item) => (
+              <option key={item.name} value={item.name}>
+                {item.name}
+                {item.priceDelta || item.price ? ` (+₹${item.priceDelta || item.price})` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       {hasLiveAR ? (
         <button
           type="button"
           onClick={openLiveAR}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition hover:bg-slate-800"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition hover:bg-slate-800"
         >
-          <ScanLine size={18} /> View live AR / 3D
+          <ScanLine size={18} /> View in 3D / Place on table
         </button>
       ) : (
         <a
           href="#product-ar-viewer"
-          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-black text-ink transition hover:border-teal-200 hover:bg-teal-50"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-black text-ink transition hover:border-teal-200 hover:bg-teal-50"
         >
-          <Rotate3D size={18} /> View product preview
+          <Rotate3D size={18} /> View photo
         </a>
       )}
       {outOfStock ? (

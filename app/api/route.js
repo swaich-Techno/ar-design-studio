@@ -1,4 +1,4 @@
-import { clearSessionCookie, ensureEnvSuperAdmin, hashPassword, setSessionCookie, signSession, verifyPassword } from "@/lib/auth";
+import { clearSessionCookie, hashPassword } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import { json, requireBusinessAccess, requireUser } from "@/lib/api";
 import { writeAudit } from "@/lib/audit";
@@ -6,9 +6,15 @@ import { trackEvent } from "@/lib/analytics";
 import { processContactRequest } from "@/lib/contactRequest";
 import { uploadBuffer } from "@/lib/cloudinary";
 import { campaignPublicUrl, cataloguePublicUrl, generateQrDataUrl, productPublicUrl, tablePublicUrl } from "@/lib/qr";
-import { getPlanLimits, mb, planDefaults } from "@/lib/plans";
+import { mb, planDefaults } from "@/lib/plans";
 import { slugify, uniqueSlug } from "@/lib/slugify";
-import { BUSINESS_LOGIN_ROLES, DEFAULT_STAFF_PERMISSIONS, STAFF_LOGIN_ROLES, TEAM_LOGIN_ROLES, ROLES, canApproveContent, canManageFinance, canStaff } from "@/lib/permissions";
+import { DEFAULT_STAFF_PERMISSIONS, ROLES, canApproveContent, canManageFinance, canStaff } from "@/lib/permissions";
+import { handleLoginRequest, handleRegisterRequest } from "@/lib/authHandlers";
+import { INTERNAL_TEAM_ROLES_WRITABLE } from "@/lib/loginPortal";
+import { LIMITS, clientIp, rateLimit, tooMany } from "@/lib/rateLimit";
+import { sanitizeProductInput } from "@/lib/productFields";
+import { resolveUploadPolicy } from "@/lib/uploadPolicy";
+import { validateUploadBuffer } from "@/lib/uploadValidate";
 import Analytics from "@/models/Analytics";
 import AuditLog from "@/models/AuditLog";
 import Business from "@/models/Business";
@@ -22,6 +28,7 @@ import SupportTicket from "@/models/SupportTicket";
 import TableQR from "@/models/TableQR";
 import User from "@/models/User";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const analyticsEvents = new Set([
@@ -46,43 +53,8 @@ function notFound() {
   return json({ error: "API route not found." }, 404);
 }
 
-function toList(value) {
-  if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
-  return String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
-}
-
 function sanitizeProduct(body) {
-  const hasARModel = Boolean(body.modelGlbUrl || body.modelUsdzUrl || body.hasARModel);
-  return {
-    name: body.name,
-    category: body.category || "General",
-    price: Number(body.price || 0),
-    discountPrice: Number(body.discountPrice || 0),
-    description: body.description || "",
-    shortDescription: body.shortDescription || "",
-    imageUrl: body.imageUrl || "",
-    galleryImages: toList(body.galleryImages),
-    fileSizeMB: mb(body.fileSizeMB || 0),
-    productType: body.productType || "STANDARD",
-    fabricImageUrl: body.fabricImageUrl || "",
-    stitchedPreviewImageUrl: body.stitchedPreviewImageUrl || "",
-    stitchedPreviewNotes: body.stitchedPreviewNotes || "",
-    supportsRotation: Boolean(body.modelGlbUrl || body.modelUsdzUrl || body.supportsRotation),
-    modelGlbUrl: body.modelGlbUrl || "",
-    modelUsdzUrl: body.modelUsdzUrl || "",
-    modelFileSizeMB: mb(body.modelFileSizeMB || 0),
-    hasARModel,
-    offerText: body.offerText || "",
-    tags: toList(body.tags),
-    isAvailable: body.isAvailable !== false,
-    stockStatus: body.stockStatus || "IN_STOCK",
-    stockQuantity: Number(body.stockQuantity || 0),
-    showStockToCustomers: body.showStockToCustomers !== false,
-    publicationStatus: body.publicationStatus || "PENDING_APPROVAL",
-    approvalStatus: body.approvalStatus || "PENDING_APPROVAL",
-    arModelStatus: hasARModel ? (body.arModelStatus || "NEEDS_REVIEW") : "NO_MODEL",
-    isFeatured: Boolean(body.isFeatured)
-  };
+  return sanitizeProductInput(body);
 }
 
 async function eventCount(query, eventType) {
@@ -142,74 +114,19 @@ function reportCsv(report) {
 }
 
 async function handleLogin(request) {
-  try {
-    const { email, password, role, allowedRoles } = await request.json();
-    const normalized = String(email || "").toLowerCase().trim();
-    if (!normalized || !password || !role) return json({ error: "Email, password, and role are required." }, 400);
-    await connectDB();
-    const user = role === ROLES.SUPER_ADMIN
-      ? await ensureEnvSuperAdmin(normalized)
-      : role === "TEAM"
-        ? await User.findOne({ email: normalized, role: { $in: Array.isArray(allowedRoles) && allowedRoles.length ? allowedRoles : TEAM_LOGIN_ROLES } })
-        : role === ROLES.BUSINESS_OWNER
-          ? await User.findOne({ email: normalized, role: { $in: Array.isArray(allowedRoles) && allowedRoles.length ? allowedRoles : BUSINESS_LOGIN_ROLES } })
-          : role === ROLES.STAFF
-            ? await User.findOne({ email: normalized, role: { $in: Array.isArray(allowedRoles) && allowedRoles.length ? allowedRoles : STAFF_LOGIN_ROLES } })
-            : await User.findOne({ email: normalized, role });
-    if (!user || !user.isActive) return json({ error: "Invalid credentials." }, 401);
-    if (!(await verifyPassword(password, user.passwordHash))) return json({ error: "Invalid credentials." }, 401);
-    if (role !== "TEAM" && role !== ROLES.BUSINESS_OWNER && role !== ROLES.STAFF && user.role !== role) return json({ error: "Use the correct login page for this account." }, 403);
-    user.lastLoginAt = new Date();
-    await user.save();
-    if (user.role === ROLES.SUPER_ADMIN) {
-      await writeAudit({ actor: user, action: "login", targetType: "User", targetId: String(user._id), description: "Super Admin logged in", request });
-    }
-    return setSessionCookie(json({ ok: true, role: user.role }), signSession(user));
-  } catch (error) {
-    return json({ error: error.message || "Login failed." }, 500);
-  }
+  return handleLoginRequest(request);
 }
 
 async function handleRegister(request) {
-  try {
-    const body = await request.json();
-    for (const key of ["businessName", "ownerName", "email", "password", "whatsapp"]) {
-      if (!body[key]) return json({ error: `${key} is required.` }, 400);
-    }
-    await connectDB();
-    const email = String(body.email).toLowerCase().trim();
-    if (await User.findOne({ email })) return json({ error: "An account with this email already exists." }, 409);
-    let slug = slugify(body.businessName);
-    if (await Business.exists({ slug })) slug = uniqueSlug(body.businessName, Date.now().toString());
-    const business = await Business.create({
-      businessName: body.businessName,
-      ownerName: body.ownerName,
-      email,
-      phone: body.phone || "",
-      whatsapp: body.whatsapp || "",
-      category: body.category || "Local shops",
-      slug,
-      ...planDefaults("Starter"),
-      subscriptionStatus: "TRIAL",
-      usedStorageMB: 0,
-      isActive: true
-    });
-    const user = await User.create({
-      name: body.ownerName,
-      email,
-      passwordHash: await hashPassword(body.password),
-      role: ROLES.BUSINESS_OWNER,
-      businessId: business._id,
-      isActive: true
-    });
-    await generateQrDataUrl(cataloguePublicUrl(business.slug));
-    return setSessionCookie(json({ ok: true, businessSlug: business.slug }), signSession(user));
-  } catch (error) {
-    return json({ error: error.message || "Registration failed." }, 500);
-  }
+  return handleRegisterRequest(request);
 }
 
 async function handleForgotPassword(request) {
+  const limited = rateLimit(`forgot:${clientIp(request)}`, LIMITS.forgot);
+  if (!limited.ok) {
+    const fail = tooMany(limited.retryAfterSec);
+    return json(fail.body, fail.status, fail.headers);
+  }
   const body = await request.json().catch(() => ({}));
   const email = String(body.email || "").toLowerCase().trim();
   const requestedFrom = String(body.role || "login").trim();
@@ -238,12 +155,19 @@ async function handleForgotPassword(request) {
 }
 
 async function handleContactRequest(request) {
+  const limited = rateLimit(`contact:${clientIp(request)}`, LIMITS.contact);
+  if (!limited.ok) {
+    const fail = tooMany(limited.retryAfterSec);
+    return json(fail.body, fail.status, fail.headers);
+  }
   const result = await processContactRequest(request);
   return json(result.body, result.status);
 }
 
 async function handleTrack(request) {
   try {
+    const limited = rateLimit(`track:${clientIp(request)}`, LIMITS.publicWrite);
+    if (!limited.ok) return json({ ok: true });
     const body = await request.json();
     if (!analyticsEvents.has(body.eventType)) return json({ error: "Invalid event type." }, 400);
     await connectDB();
@@ -472,9 +396,9 @@ async function handlePublicBusiness(businessSlug) {
   const business = await Business.findOne({ slug: businessSlug }).lean();
   if (!business) return json({ error: "Business not found." }, 404);
   if (!business.isActive) return json({ business: { businessName: business.businessName, logoUrl: business.logoUrl, slug: business.slug, isActive: false }, products: [] });
-  const products = await Product.find({ businessId: business._id, isAvailable: true, publicationStatus: { $in: ["APPROVED", "PUBLISHED"] } })
-    .select("name slug category price discountPrice shortDescription imageUrl fabricImageUrl stitchedPreviewImageUrl offerText isFeatured modelGlbUrl hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers tags productType")
-    .sort({ isFeatured: -1, createdAt: -1 })
+  const products = await Product.find({ businessId: business._id, isAvailable: true, isHidden: { $ne: true }, publicationStatus: { $in: ["APPROVED", "PUBLISHED"] } })
+    .select("name slug category price discountPrice shortDescription imageUrl fabricImageUrl stitchedPreviewImageUrl offerText isFeatured isBestSeller isNewItem isTodaysSpecial isSoldOut dietary modelGlbUrl hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers tags productType sortOrder variants addons")
+    .sort({ isFeatured: -1, sortOrder: 1, createdAt: -1 })
     .lean();
   return json({
     business: {
@@ -500,8 +424,8 @@ async function handlePublicProduct(businessSlug, productSlug) {
   await connectDB();
   const business = await Business.findOne({ slug: businessSlug }).lean();
   if (!business || !business.isActive) return json({ error: "Product unavailable." }, 404);
-  const product = await Product.findOne({ businessId: business._id, slug: productSlug, isAvailable: true, publicationStatus: { $in: ["APPROVED", "PUBLISHED"] } })
-    .select("name slug category price discountPrice description shortDescription imageUrl galleryImages fabricImageUrl stitchedPreviewImageUrl stitchedPreviewNotes modelGlbUrl modelUsdzUrl offerText tags isAvailable hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers productType")
+  const product = await Product.findOne({ businessId: business._id, slug: productSlug, isAvailable: true, isHidden: { $ne: true }, publicationStatus: { $in: ["APPROVED", "PUBLISHED"] } })
+    .select("name slug category price discountPrice description shortDescription imageUrl galleryImages fabricImageUrl stitchedPreviewImageUrl stitchedPreviewNotes modelGlbUrl modelUsdzUrl offerText tags isAvailable hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers productType dietary isSoldOut isFeatured isBestSeller isNewItem isTodaysSpecial variants addons calories allergens")
     .lean();
   if (!product) return json({ error: "Product not found." }, 404);
   return json({
@@ -665,31 +589,17 @@ async function handleProducts(method, request, id) {
     if (denied) return denied;
     if ([ROLES.BUSINESS_STAFF, ROLES.STAFF].includes(user.role)) {
       if (body.isAvailable !== undefined && canStaff(user, "canEditAvailability")) product.isAvailable = Boolean(body.isAvailable);
+      if (body.isSoldOut !== undefined && canStaff(user, "canEditAvailability")) product.isSoldOut = Boolean(body.isSoldOut);
       if (body.price !== undefined && canStaff(user, "canEditProducts")) product.price = Number(body.price || 0);
     } else {
+      const next = sanitizeProductInput({ ...product.toObject(), ...body });
       const wasARProduct = Boolean(product.hasARModel);
-      const nextModelGlbUrl = body.modelGlbUrl !== undefined ? body.modelGlbUrl : product.modelGlbUrl;
-      const nextModelUsdzUrl = body.modelUsdzUrl !== undefined ? body.modelUsdzUrl : product.modelUsdzUrl;
-      const nextHasARModel = Boolean(nextModelGlbUrl || nextModelUsdzUrl || body.hasARModel);
-      if (!wasARProduct && nextHasARModel) {
+      if (!wasARProduct && next.hasARModel) {
         const business = await Business.findById(product.businessId);
         const arCount = await Product.countDocuments({ businessId: product.businessId, hasARModel: true });
         if (arCount >= Number(business?.arProductLimit || 0)) return json({ error: `${business?.subscriptionPlan || "Starter"} includes ${business?.arProductLimit || 0} AR/3D products. Upgrade or buy an AR add-on to add this model.` }, 403);
       }
-      for (const field of ["name", "category", "description", "shortDescription", "imageUrl", "fabricImageUrl", "stitchedPreviewImageUrl", "stitchedPreviewNotes", "productType", "modelGlbUrl", "modelUsdzUrl", "offerText", "stockStatus"]) if (body[field] !== undefined) product[field] = body[field];
-      if (body.price !== undefined) product.price = Number(body.price || 0);
-      if (body.discountPrice !== undefined) product.discountPrice = Number(body.discountPrice || 0);
-      if (body.fileSizeMB !== undefined) product.fileSizeMB = mb(body.fileSizeMB || 0);
-      if (body.modelFileSizeMB !== undefined) product.modelFileSizeMB = mb(body.modelFileSizeMB || 0);
-      if (body.stockQuantity !== undefined) product.stockQuantity = Number(body.stockQuantity || 0);
-      if (body.showStockToCustomers !== undefined) product.showStockToCustomers = Boolean(body.showStockToCustomers);
-      if (body.supportsRotation !== undefined) product.supportsRotation = Boolean(body.supportsRotation);
-      if (body.isAvailable !== undefined) product.isAvailable = Boolean(body.isAvailable);
-      if (body.isFeatured !== undefined) product.isFeatured = Boolean(body.isFeatured);
-      product.hasARModel = nextHasARModel;
-      product.supportsRotation = Boolean(product.modelGlbUrl || product.modelUsdzUrl || product.supportsRotation);
-      if (body.galleryImages !== undefined) product.galleryImages = toList(body.galleryImages);
-      if (body.tags !== undefined) product.tags = toList(body.tags);
+      Object.assign(product, next);
     }
     await product.save();
     return json({ product });
@@ -878,59 +788,44 @@ async function handleQrs() {
   });
 }
 
-function safeFolderPart(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9-_]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
-}
-
-function scopedUploadFolder(folder, business, uploadType) {
-  const requested = safeFolderPart(String(folder || "").split("/").pop()) || "uploads";
-  const owner = business?.slug ? `clients/${safeFolderPart(business.slug)}` : "platform";
-  const kind = uploadType === "model" ? "models" : "images";
-  return `ar-design-studio/${owner}/${kind}/${requested}`;
-}
-
 async function handleUpload(request) {
   const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN, ROLES.AR_MANAGER, ROLES.SUPPORT_STAFF, ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.BUSINESS_STAFF, ROLES.STAFF]);
   if (error) return error;
+  const limited = rateLimit(`upload:${user._id || clientIp(request)}`, LIMITS.upload);
+  if (!limited.ok) {
+    const fail = tooMany(limited.retryAfterSec);
+    return json(fail.body, fail.status, fail.headers);
+  }
   const form = await request.formData();
   const file = form.get("file");
   const folder = form.get("folder") || "ar-design-studio";
   const uploadType = String(form.get("uploadType") || "image");
   const productId = form.get("productId");
   if (!file) return json({ error: "File is required." }, 400);
-  await connectDB();
-  const business = user.businessId ? await Business.findById(user.businessId) : null;
-  const sizeMB = mb(Number(file.size || 0) / (1024 * 1024));
-  const limits = getPlanLimits(business?.subscriptionPlan);
-  if (business) {
-    const remainingStorage = Math.max(0, Number(business.storageLimitMB || 0) - Number(business.usedStorageMB || 0));
-    if (sizeMB > remainingStorage) return json({ error: `Storage limit reached. ${business.subscriptionPlan} has ${business.storageLimitMB} MB storage. Upgrade or add storage to upload more files.` }, 403);
-  }
-  if (uploadType === "image" && sizeMB > limits.imageMaxSizeMB) return json({ error: `${business?.subscriptionPlan || "Starter"} image upload limit is ${limits.imageMaxSizeMB} MB. Compress the image or upgrade the plan.` }, 413);
-  if (uploadType === "model") {
-    const lower = String(file.name || "").toLowerCase();
-    if (!lower.endsWith(".glb") && !lower.endsWith(".usdz")) return json({ error: "Only .glb and .usdz model files are allowed." }, 400);
-    if (!business) return json({ error: "Model uploads must be linked to a business plan." }, 403);
-    const currentProduct = productId ? await Product.findOne({ _id: productId, businessId: business._id }).select("hasARModel") : null;
-    const arCount = await Product.countDocuments({ businessId: business._id, hasARModel: true });
-    if (arCount >= Number(business.arProductLimit || 0) && !currentProduct?.hasARModel) return json({ error: `${business.subscriptionPlan} includes ${business.arProductLimit} AR/3D products. Upgrade or buy an AR add-on to upload more models.` }, 403);
-  }
+  const policy = await resolveUploadPolicy({
+    user,
+    fileName: String(file.name || "upload"),
+    fileSizeBytes: Number(file.size || 0),
+    uploadType,
+    productId,
+    folder,
+    mimeType: file.type
+  });
+  if (policy.error) return json({ error: policy.error }, policy.status);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const contents = validateUploadBuffer(buffer, uploadType);
+  if (contents.error) return json({ error: contents.error }, contents.status);
   let result;
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    result = await uploadBuffer(buffer, { folder: scopedUploadFolder(folder, business, uploadType), resourceType: uploadType === "model" ? "raw" : "image", fileName: String(file.name || "upload") });
-  } catch (error) {
-    return json({ error: error.message || "Upload failed." }, 500);
+    result = await uploadBuffer(buffer, { folder: policy.folder, resourceType: policy.resourceType, fileName: String(file.name || "upload"), publicId: policy.publicId });
+  } catch {
+    return json({ error: "Upload failed." }, 500);
   }
-  if (business) {
-    business.usedStorageMB = mb(Number(business.usedStorageMB || 0) + sizeMB);
-    await business.save();
+  if (policy.business) {
+    policy.business.usedStorageMB = mb(Number(policy.business.usedStorageMB || 0) + policy.fileSizeMB);
+    await policy.business.save();
   }
-  return json({ url: result.secureUrl, publicId: result.publicId, fileSizeMB: sizeMB, uploadType });
+  return json({ url: result.secureUrl, publicId: result.publicId, fileSizeMB: policy.fileSizeMB, uploadType });
 }
 
 async function handleFinance(method, request) {
@@ -1061,7 +956,11 @@ async function handleTeam(method, request, id) {
   if (id && method === "PATCH") {
     const body = await request.json();
     const update = {};
-    for (const field of ["name", "department", "role", "salaryAmount", "isActive"]) if (body[field] !== undefined) update[field] = body[field];
+    for (const field of ["name", "department", "salaryAmount", "isActive"]) if (body[field] !== undefined) update[field] = body[field];
+    if (body.role !== undefined) {
+      if (!INTERNAL_TEAM_ROLES_WRITABLE.includes(body.role)) return json({ error: "Invalid role." }, 400);
+      update.role = body.role;
+    }
     const member = await User.findByIdAndUpdate(id, update, { new: true }).select("-passwordHash");
     return json({ member });
   }
@@ -1133,23 +1032,30 @@ async function handleSupport(method, request, id) {
   }
   if (method === "POST") {
     const body = await request.json();
+    const isInternal = internalRole(user.role);
     const ticket = await SupportTicket.create({
-      businessId: body.businessId || user.businessId || undefined,
-      title: body.title,
-      description: body.description || "",
-      priority: body.priority || "MEDIUM",
-      status: body.status || "OPEN",
-      assignedTo: body.assignedTo || undefined,
+      businessId: isInternal ? (body.businessId || user.businessId || undefined) : user.businessId,
+      title: String(body.title || "").slice(0, 160),
+      description: String(body.description || "").slice(0, 4000),
+      priority: ["LOW", "MEDIUM", "HIGH"].includes(body.priority) ? body.priority : "MEDIUM",
+      status: "OPEN",
+      assignedTo: isInternal ? (body.assignedTo || undefined) : undefined,
       createdBy: user._id,
-      notes: body.notes || ""
+      notes: String(body.notes || "").slice(0, 2000)
     });
     return json({ ticket }, 201);
   }
   if (id && method === "PATCH") {
     const body = await request.json();
+    const ticket = await SupportTicket.findById(id);
+    if (!ticket) return json({ error: "Ticket not found." }, 404);
+    if (!internalRole(user.role) && String(ticket.businessId || "") !== String(user.businessId || "")) {
+      return json({ error: "Business access denied." }, 403);
+    }
     const update = {};
     for (const field of ["status", "priority", "assignedTo", "notes"]) if (body[field] !== undefined) update[field] = body[field];
-    const ticket = await SupportTicket.findByIdAndUpdate(id, update, { new: true });
+    Object.assign(ticket, update);
+    await ticket.save();
     return json({ ticket });
   }
   return notFound();
@@ -1237,6 +1143,9 @@ async function handleAdminBusinesses(method, request, id) {
 
 async function dispatch(request, method) {
   const parts = pathParts(request);
+  if (parts[0] === "health" && method === "GET") {
+    return json({ status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
+  }
   if (parts[0] === "contact" && method === "POST") return handleContactRequest(request);
   if (parts[0] === "auth" && parts[1] === "login" && method === "POST") return handleLogin(request);
   if (parts[0] === "auth" && parts[1] === "logout" && method === "POST") return clearSessionCookie();

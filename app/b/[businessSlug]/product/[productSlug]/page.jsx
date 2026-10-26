@@ -23,9 +23,10 @@ export default async function PublicProductPage({ params, searchParams }) {
     businessId: business._id,
     slug: productSlug,
     isAvailable: true,
+    isHidden: { $ne: true },
     publicationStatus: { $in: ["APPROVED", "PUBLISHED"] }
   })
-    .select("name slug category price discountPrice description shortDescription imageUrl galleryImages fabricImageUrl stitchedPreviewImageUrl stitchedPreviewNotes modelGlbUrl modelUsdzUrl offerText tags isAvailable hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers productType")
+    .select("name slug category price discountPrice description shortDescription imageUrl galleryImages fabricImageUrl stitchedPreviewImageUrl stitchedPreviewNotes modelGlbUrl modelUsdzUrl offerText tags isAvailable hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers productType dietary isSoldOut isFeatured isBestSeller isNewItem isTodaysSpecial variants addons calories allergens")
     .lean();
   if (!product) notFound();
 

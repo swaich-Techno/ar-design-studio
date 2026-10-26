@@ -3,16 +3,20 @@ import { requireUser } from "@/lib/api";
 import { connectDB } from "@/lib/mongodb";
 import { mb } from "@/lib/plans";
 import { ROLES } from "@/lib/permissions";
+import { isAllowedHostedAssetUrl } from "@/lib/uploadValidate";
 import Business from "@/models/Business";
 
 export async function POST(request) {
-  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN, ROLES.AR_MANAGER, ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.BUSINESS_STAFF, ROLES.STAFF]);
   if (error) return error;
 
   const body = await request.json().catch(() => ({}));
   const fileSizeMB = mb(Number(body.fileSize || body.bytes || 0) / (1024 * 1024));
   if (!body.url || !body.publicId) {
     return NextResponse.json({ error: "Uploaded asset details are required." }, { status: 400 });
+  }
+  if (!isAllowedHostedAssetUrl(body.url)) {
+    return NextResponse.json({ error: "Uploaded asset host is not allowed." }, { status: 400 });
   }
 
   await connectDB();

@@ -25,13 +25,18 @@ export function ProductCard({ businessSlug, product, query = "" }) {
           <div className="grid h-full place-items-center text-center text-sm font-bold text-slate-500">
             <div>
               <Box className="mx-auto text-brand" size={34} />
-              <p className="mt-2">Product preview</p>
+              <p className="mt-2">Image unavailable</p>
             </div>
           </div>
         )}
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/55 to-transparent" />
         <div className="absolute left-3 top-3 flex flex-wrap gap-2">
           {hasAR ? <span className="inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-xs font-black text-white"><Sparkles size={13} /> AR ready</span> : null}
+          {product.isTodaysSpecial ? <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-black text-white">Today’s special</span> : null}
+          {product.isBestSeller ? <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-black text-white">Best seller</span> : null}
+          {product.isNewItem ? <span className="rounded-full bg-teal-600 px-3 py-1 text-xs font-black text-white">New</span> : null}
+          {product.dietary === "VEG" ? <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-black text-green-800">Veg</span> : null}
+          {product.dietary === "NON_VEG" ? <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-black text-red-800">Non-veg</span> : null}
           {product.stitchedPreviewImageUrl ? <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-black text-white">Stitched preview</span> : null}
         </div>
         {product.showStockToCustomers !== false ? (

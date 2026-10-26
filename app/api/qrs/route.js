@@ -8,7 +8,7 @@ import TableQR from "@/models/TableQR";
 import Campaign from "@/models/Campaign";
 
 export async function GET() {
-  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.BUSINESS_STAFF, ROLES.STAFF]);
   if (error) return error;
   await connectDB();
   const business = await Business.findById(user.businessId).lean();

@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
+import { getAuthSecret } from "@/lib/authSecret";
+import { applySecurityHeaders } from "@/lib/securityHeaders";
 
 const SESSION_COOKIE = "ar_design_studio_session";
 
 const PUBLIC_PREFIXES = [
   "/b/",
+  "/ar",
   "/api/public/",
   "/api/analytics/track",
+  "/api/health",
+  "/api/contact",
+  "/api/auth/",
   "/_next/",
   "/favicon.ico"
 ];
@@ -14,12 +20,21 @@ const PUBLIC_PATHS = new Set([
   "/",
   "/pricing",
   "/contact",
+  "/ar",
+  "/work",
+  "/about",
+  "/capabilities",
+  "/food",
+  "/demo",
+  "/how-it-works",
+  "/food-businesses",
   "/unauthorized",
   "/forgot-password",
   "/super-admin/login",
   "/team/login",
   "/business/login",
   "/business/register",
+  "/business",
   "/staff/login"
 ]);
 
@@ -27,10 +42,6 @@ const INTERNAL_ROLES = ["SUPER_ADMIN", "TEAM_ADMIN", "FINANCE_MANAGER", "AR_MANA
 const TEAM_ROLES = ["TEAM_ADMIN", "FINANCE_MANAGER", "AR_MANAGER", "SUPPORT_STAFF"];
 const BUSINESS_ROLES = ["BUSINESS_OWNER", "BUSINESS_MANAGER"];
 const STAFF_ROLES = INTERNAL_ROLES;
-
-function getAuthSecret() {
-  return process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "local-ar-design-studio-secret-change-me";
-}
 
 function base64UrlToBytes(value) {
   const base64 = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
@@ -82,7 +93,7 @@ function isPublic(path) {
 }
 
 function redirectTo(path, request) {
-  return NextResponse.redirect(new URL(path, request.url));
+  return applySecurityHeaders(NextResponse.redirect(new URL(path, request.url)));
 }
 
 function loginFor(path) {
@@ -94,9 +105,10 @@ function loginFor(path) {
 
 export async function middleware(request) {
   const path = request.nextUrl.pathname;
+  const pass = (response) => applySecurityHeaders(response);
 
   if (isPublic(path)) {
-    return NextResponse.next();
+    return pass(NextResponse.next());
   }
 
   const isProtected =
@@ -117,7 +129,7 @@ export async function middleware(request) {
     path.startsWith("/business/settings") ||
     path.startsWith("/staff");
 
-  if (!isProtected) return NextResponse.next();
+  if (!isProtected) return pass(NextResponse.next());
 
   const session = await verifySession(request.cookies.get(SESSION_COOKIE)?.value);
   if (!session) return redirectTo(loginFor(path), request);
@@ -138,7 +150,7 @@ export async function middleware(request) {
     return redirectTo("/unauthorized", request);
   }
 
-  return NextResponse.next();
+  return pass(NextResponse.next());
 }
 
 export const config = {

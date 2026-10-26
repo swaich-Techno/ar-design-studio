@@ -6,18 +6,18 @@ import { ConversionTracker } from "@/components/public/ConversionTracker";
 export const metadata = {
   metadataBase: new URL("https://ar.bsocio.in"),
   title: {
-    default: "AR Design Studio | QR Catalogue & AR Product Viewer",
+    default: "B Socio AR | Interactive QR, 3D & AR Menus for Food Businesses",
     template: "%s"
   },
-  description: "Create QR product catalogues, AR product previews, WhatsApp enquiry pages, digital menus, campaign QR pages, analytics, and product landing pages for local businesses.",
+  description: "Turn restaurant, café, bakery and food menus into interactive digital experiences with QR access, premium product presentation, 3D dishes, AR and direct enquiry.",
   manifest: "/manifest.json",
-  applicationName: "AR Design Studio",
+  applicationName: "B Socio AR",
   authors: [{ name: "B Socio", url: "https://www.bsocio.in" }],
   creator: "B Socio",
   publisher: "B Socio",
   appleWebApp: {
     capable: true,
-    title: "AR Design Studio",
+    title: "B Socio AR",
     statusBarStyle: "black-translucent"
   },
   icons: {

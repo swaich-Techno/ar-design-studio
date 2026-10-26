@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { trackEvent } from "@/lib/analytics";
+import { LIMITS, clientIp, rateLimit } from "@/lib/rateLimit";
 import Business from "@/models/Business";
 import Campaign from "@/models/Campaign";
 import Product from "@/models/Product";
@@ -10,6 +11,8 @@ const allowed = new Set(["catalogue_view", "product_view", "ar_view", "whatsapp_
 
 export async function POST(request) {
   try {
+    const limited = rateLimit(`track:${clientIp(request)}`, LIMITS.publicWrite);
+    if (!limited.ok) return NextResponse.json({ ok: true });
     const body = await request.json();
     if (!allowed.has(body.eventType)) return NextResponse.json({ error: "Invalid event type." }, { status: 400 });
     await connectDB();

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
-export function AuthForm({ role, allowedRoles, title, subtitle, loginPath }) {
+export function AuthForm({ role, title, subtitle, loginPath }) {
   const router = useRouter();
   const [state, setState] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -19,7 +19,7 @@ export function AuthForm({ role, allowedRoles, title, subtitle, loginPath }) {
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...state, role, allowedRoles })
+      body: JSON.stringify({ ...state, role })
     });
 
     const data = await response.json();

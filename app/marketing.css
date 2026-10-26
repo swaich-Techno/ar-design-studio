@@ -1,0 +1,2440 @@
+.marketing-shell {
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-syne);
+  --font-serif: var(--font-instrument);
+  --font-mono: var(--font-geist-mono);
+  --bg: #080809;
+  --bg-2: #101114;
+  --bg-3: #17181d;
+  --fg: #f3efe6;
+  --muted: #9b9589;
+  --line: rgba(243, 239, 230, 0.12);
+  --accent: #8b7cff;
+  --accent-2: #b7a8ff;
+  --chrome: #c9cfd8;
+  --gold: #d4b36a;
+  --champagne: #e8d5a3;
+  --burgundy: #2c0d12;
+  --burgundy-2: #4a161d;
+  --amber: #d4783a;
+  --cream: #f3e6d0;
+  --tomato: #c44536;
+  --herb: #4a7c59;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-shell,
+.marketing-shell * {
+  box-sizing: border-box;
+}
+
+.marketing-shell {
+  background: var(--bg);
+  color: var(--fg);
+  scroll-behavior: smooth;
+}
+
+.marketing-shell {
+  min-height: 100%;
+}
+
+.marketing-shell {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.011em;
+  text-rendering: optimizeLegibility;
+  padding-bottom: 4.5rem;
+}
+
+@media (min-width: 768px) {
+  .marketing-shell {
+    padding-bottom: 0;
+  }
+}
+
+.marketing-shell ::selection {
+  background: color-mix(in srgb, var(--accent) 70%, black);
+  color: white;
+}
+
+.marketing-shell :focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+.marketing-shell a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.marketing-shell button {
+  font: inherit;
+  color: inherit;
+}
+
+.marketing-shell img,
+.marketing-shell canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.marketing-shell .font-display {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+}
+
+.marketing-shell .font-serif {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.marketing-shell .font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.marketing-shell .grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.marketing-shell .optical-glass {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(12, 12, 14, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 18px 50px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+}
+
+.marketing-shell .headline {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  text-wrap: balance;
+}
+
+.marketing-shell .kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.marketing-shell .progress-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 70;
+  pointer-events: none;
+  background: transparent;
+}
+
+.marketing-shell .progress-rail span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transform-origin: 0 50%;
+}
+
+.marketing-shell .reveal-line {
+  display: block;
+  overflow: hidden;
+}
+
+.marketing-shell .reveal-line > span {
+  display: block;
+  animation: reveal-up 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes reveal-up {
+  from {
+    transform: translateY(108%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-shell {
+    scroll-behavior: auto;
+  }
+
+  .marketing-shell .reveal-line > span {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+.marketing-shell .cursor-dot,
+.marketing-shell .cursor-ring {
+  display: none;
+}
+
+@media (pointer: fine) {
+  .marketing-shell .cursor-dot,
+.marketing-shell .cursor-ring {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 90;
+    border-radius: 999px;
+    mix-blend-mode: difference;
+  }
+
+  .marketing-shell .cursor-dot {
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    background: #fff;
+  }
+
+  .marketing-shell .cursor-ring {
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out),
+      margin 0.25s var(--ease-out), opacity 0.25s;
+  }
+
+  .marketing-shell .has-custom-cursor,
+.marketing-shell .has-custom-cursor * {
+    cursor: none;
+  }
+}
+
+.marketing-shell .orbit-fallback,
+.marketing-shell .portal-fallback,
+.marketing-shell .ar-explainer-fallback,
+.marketing-shell .jewel-fallback,
+.marketing-shell .food-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.marketing-shell .ar-explainer-fallback {
+  z-index: 1;
+}
+
+.marketing-shell .ar-ex-glow {
+  position: absolute;
+  right: 6%;
+  top: 18%;
+  width: min(70%, 360px);
+  height: min(70%, 360px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 124, 255, 0.38), transparent 68%);
+  filter: blur(6px);
+}
+
+.marketing-shell .ar-ex-table {
+  position: absolute;
+  left: 8%;
+  right: 18%;
+  bottom: 10%;
+  height: 42%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 30%, rgba(36, 30, 42, 0.95), transparent 72%);
+}
+
+.marketing-shell .ar-ex-tray {
+  position: absolute;
+  left: 12%;
+  right: 28%;
+  bottom: 16%;
+  height: 38%;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, #d5dbe4 0 8px, transparent 8px),
+    #1c1824;
+  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.marketing-shell .ar-ex-grid {
+  position: absolute;
+  inset: 12% 10%;
+  background-image:
+    linear-gradient(rgba(154, 166, 255, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(154, 166, 255, 0.28) 1px, transparent 1px);
+  background-size: 22% 28%;
+  animation: ar-ex-grid 9s linear infinite;
+}
+
+.marketing-shell .ar-ex-reticle {
+  position: absolute;
+  inset: 18% 16%;
+  border: 1.5px solid rgba(232, 228, 255, 0.0);
+  animation: ar-ex-reticle 9s linear infinite;
+}
+
+.marketing-shell .ar-ex-reticle::before,
+.marketing-shell .ar-ex-reticle::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #e8e4ff;
+}
+
+.marketing-shell .ar-ex-reticle::before {
+  top: -2px;
+  left: -2px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.marketing-shell .ar-ex-reticle::after {
+  right: -2px;
+  bottom: -2px;
+  border-left: 0;
+  border-top: 0;
+}
+
+.marketing-shell .ar-ex-scanline {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: #c9c4ff;
+  box-shadow: 0 0 12px #8b7cff;
+  animation: ar-ex-scan 9s linear infinite;
+}
+
+.marketing-shell .ar-ex-qr {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  translate: -50% -50%;
+  background:
+    conic-gradient(#f3efe6 0 90deg, #111 0 180deg, #f3efe6 0 270deg, #111 0),
+    #111;
+  background-size: 50% 50%;
+  box-shadow: inset 0 0 0 4px #111;
+  animation: ar-ex-qr 9s linear infinite;
+}
+
+.marketing-shell .ar-ex-ring {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 88px;
+  height: 34px;
+  translate: -50% -50%;
+  border: 12px solid #d4b36a;
+  border-radius: 50%;
+  box-shadow: 0 0 24px rgba(212, 179, 106, 0.45);
+  animation: ar-ex-ring 18s linear infinite;
+  animation-delay: -3.4s;
+}
+
+.marketing-shell .ar-ex-ring::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  width: 14px;
+  height: 14px;
+  translate: -50% 0;
+  rotate: 45deg;
+  background: linear-gradient(135deg, #fff, #9ab6ff);
+  box-shadow: 0 0 16px rgba(154, 182, 255, 0.8);
+}
+
+.marketing-shell .ar-ex-plate {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 92px;
+  height: 28px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #efe6d6, #8b1e2d 48%, #24140f);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  animation: ar-ex-plate 18s linear infinite;
+}
+
+.marketing-shell .ar-ex-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b7a8ff;
+  animation: ar-ex-dot 9s linear infinite;
+}
+
+.marketing-shell .ar-ex-dot.d1 { left: 14%; top: 18%; }
+.marketing-shell .ar-ex-dot.d2 { right: 16%; top: 22%; animation-delay: 0.4s; }
+.marketing-shell .ar-ex-dot.d3 { left: 18%; bottom: 20%; animation-delay: 0.8s; }
+.marketing-shell .ar-ex-dot.d4 { right: 18%; bottom: 18%; animation-delay: 1.2s; }
+
+.marketing-shell .ar-ex-phone {
+  position: absolute;
+  right: 6%;
+  top: 12%;
+  width: min(34%, 128px);
+  height: min(58%, 250px);
+  border-radius: 28px;
+  background: linear-gradient(180deg, #c5ccd8, #3c414c);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.45);
+  animation: floaty 5.8s ease-in-out infinite;
+}
+
+.marketing-shell .ar-ex-screen {
+  position: absolute;
+  inset: 10px 8px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #2a1a44, #0b0c12 72%);
+}
+
+.marketing-shell .ar-ex-hud-line {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: #d7d2ff;
+  animation: ar-ex-hud 9s linear infinite;
+}
+
+.marketing-shell .ar-ex-hud-product {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 36px;
+  height: 36px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff6d6, #d4b36a 46%, #6a4a12);
+  animation: ar-ex-hud-product 9s linear infinite;
+}
+
+@keyframes ar-ex-scan {
+  0%,
+  32% { top: 18%; opacity: 1; }
+  33%,
+  100% { top: 70%; opacity: 0; }
+}
+
+@keyframes ar-ex-grid {
+  0%,
+  30% { opacity: 0.9; }
+  45%,
+  100% { opacity: 0.15; }
+}
+
+@keyframes ar-ex-reticle {
+  0%,
+  30% { opacity: 1; transform: scale(1); }
+  50%,
+  100% { opacity: 0.25; transform: scale(0.96); }
+}
+
+@keyframes ar-ex-qr {
+  0%,
+  28% { opacity: 1; }
+  40%,
+  100% { opacity: 0; }
+}
+
+@keyframes ar-ex-ring {
+  0%,
+  16% { opacity: 0.28; transform: translate(-50%, -42%) scale(0.72); }
+  22%,
+  48% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  55%,
+  100% { opacity: 0; }
+}
+
+@keyframes ar-ex-plate {
+  0%,
+  50% { opacity: 0; transform: translate(-50%, -40%) scale(0.6); }
+  61%,
+  94% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; }
+}
+
+@keyframes ar-ex-dot {
+  0%,
+  8%,
+  32% { opacity: 1; }
+  16%,
+  24%,
+  40%,
+  100% { opacity: 0.15; }
+}
+
+@keyframes ar-ex-hud {
+  0%,
+  32% { top: 12%; opacity: 0.9; }
+  40%,
+  100% { top: 78%; opacity: 0; }
+}
+
+@keyframes ar-ex-hud-product {
+  0%,
+  30% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  42%,
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.marketing-shell .jewel-spot {
+  position: absolute;
+  inset: 18% 20% 30%;
+  background: radial-gradient(circle, rgba(240, 215, 164, 0.28), transparent 65%);
+}
+
+.marketing-shell .jewel-ring {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 240px;
+  height: 92px;
+  translate: -50% -50%;
+  border: 22px solid #d4b36a;
+  border-radius: 50%;
+  box-shadow: 0 0 50px rgba(212, 179, 106, 0.4), inset 0 0 14px rgba(255, 230, 170, 0.45);
+  transform: rotateX(62deg);
+  animation: floaty 6s ease-in-out infinite;
+}
+
+.marketing-shell .jewel-gem {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 36px;
+  height: 36px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: linear-gradient(135deg, #fff, #9ab6ff);
+  box-shadow: 0 0 28px rgba(180, 210, 255, 0.75);
+}
+
+.marketing-shell .food-dish {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 190px;
+  height: 190px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 32%, #5a2a16, #24140f 62%);
+  box-shadow: 0 0 50px rgba(196, 69, 54, 0.3);
+  animation: floaty 5.6s ease-in-out infinite;
+}
+
+.marketing-shell .food-table {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 18%;
+  height: 38%;
+  background: radial-gradient(ellipse at 50% 0%, #4a161d, transparent 70%);
+}
+
+.marketing-shell .food-plate {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: min(46vw, 340px);
+  height: 54px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #efe6d6, #b8aa96);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(min(22vw, 230px)) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(min(22vw, 230px)) rotate(-360deg);
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-shell .ar-ex-grid,
+  .marketing-shell .ar-ex-reticle,
+  .marketing-shell .ar-ex-scanline,
+  .marketing-shell .ar-ex-qr,
+  .marketing-shell .ar-ex-ring,
+  .marketing-shell .ar-ex-plate,
+  .marketing-shell .ar-ex-dot,
+  .marketing-shell .ar-ex-phone,
+  .marketing-shell .ar-ex-hud-line,
+  .marketing-shell .ar-ex-hud-product {
+    animation: none !important;
+  }
+
+  .marketing-shell .ar-ex-qr,
+  .marketing-shell .ar-ex-scanline,
+  .marketing-shell .ar-ex-plate {
+    opacity: 0;
+  }
+
+  .marketing-shell .ar-ex-ring,
+  .marketing-shell .ar-ex-hud-product {
+    opacity: 1;
+  }
+}
+
+.marketing-shell .ar-hero-loop {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+}
+
+.marketing-shell .ar-hero-loop img,
+.marketing-shell .ar-hero-loop canvas {
+  max-width: none;
+}
+
+.marketing-shell .ar-hero-loop__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #050506;
+  box-shadow:
+    0 0 0 1px rgba(212, 179, 106, 0.18),
+    0 28px 70px rgba(0, 0, 0, 0.55);
+  perspective: 1100px;
+}
+
+.marketing-shell .ar-hero-loop__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 42%, transparent 42%, rgba(0, 0, 0, 0.38) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.12), transparent 18%, transparent 78%, rgba(0, 0, 0, 0.35));
+}
+
+.marketing-shell .ar-hero-loop__plate {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.25s ease;
+  pointer-events: none;
+}
+
+.marketing-shell .ar-hero-loop__plate.is-active {
+  opacity: 1;
+}
+
+.marketing-shell .ar-hero-loop__ken {
+  position: absolute;
+  inset: -4%;
+  transform-origin: 50% 42%;
+  will-change: transform;
+  animation: ar-hero-push 14s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__rig {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+  animation: ar-hero-parallax 16s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__base,
+.marketing-shell .ar-hero-loop__product {
+  position: absolute;
+  inset: 0;
+}
+
+.marketing-shell .ar-hero-loop__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;
+}
+
+.marketing-shell .ar-hero-loop__product {
+  transform-origin: 50% 32%;
+  will-change: transform;
+  -webkit-mask-image: radial-gradient(ellipse 38% 44% at 50% 30%, #000 0%, #000 40%, transparent 72%);
+  mask-image: radial-gradient(ellipse 38% 44% at 50% 30%, #000 0%, #000 40%, transparent 72%);
+  animation: ar-hero-jewel-tilt 8s ease-in-out infinite;
+  mix-blend-mode: plus-lighter;
+  opacity: 0.72;
+}
+
+.marketing-shell .ar-hero-loop__plate--food .ar-hero-loop__product {
+  transform-origin: 50% 36%;
+  -webkit-mask-image: radial-gradient(ellipse 48% 48% at 50% 34%, #000 0%, #000 46%, transparent 78%);
+  mask-image: radial-gradient(ellipse 48% 48% at 50% 34%, #000 0%, #000 46%, transparent 78%);
+  animation: ar-hero-food-tilt 9.5s ease-in-out infinite;
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+
+.marketing-shell .ar-hero-loop__fx,
+.marketing-shell .ar-hero-loop__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.marketing-shell .ar-hero-loop__canvas {
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+}
+
+.marketing-shell .ar-hero-loop__portal {
+  position: absolute;
+  left: 50%;
+  top: 63%;
+  width: 42%;
+  height: 22%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(212, 179, 106, 0.42), rgba(212, 179, 106, 0.08) 46%, transparent 72%);
+  filter: blur(10px);
+  animation: ar-hero-portal 3.8s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__plate--food .ar-hero-loop__portal {
+  top: 68%;
+  width: 46%;
+  height: 20%;
+}
+
+.marketing-shell .ar-hero-loop__beams {
+  position: absolute;
+  left: 34%;
+  right: 34%;
+  top: 28%;
+  height: 36%;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 11px,
+    rgba(232, 213, 163, 0.16) 11px 12px
+  );
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+  opacity: 0.4;
+  mix-blend-mode: screen;
+  animation: ar-hero-beams 4.4s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__plate--food .ar-hero-loop__beams {
+  top: 32%;
+  height: 38%;
+  left: 30%;
+  right: 30%;
+}
+
+.marketing-shell .ar-hero-loop__ring {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 213, 163, 0.42);
+  box-shadow:
+    0 0 16px rgba(212, 179, 106, 0.28),
+    inset 0 0 10px rgba(232, 213, 163, 0.16);
+  translate: -50% -50%;
+  transform: scaleX(1.45);
+  animation: ar-hero-ring 4.2s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__plate--food .ar-hero-loop__ring {
+  top: 68%;
+}
+
+.marketing-shell .ar-hero-loop__ring.r1 {
+  width: 18%;
+  height: 10%;
+  animation-delay: 0s;
+}
+.marketing-shell .ar-hero-loop__ring.r2 {
+  width: 28%;
+  height: 15%;
+  animation-delay: -0.7s;
+  opacity: 0.8;
+}
+.marketing-shell .ar-hero-loop__ring.r3 {
+  width: 38%;
+  height: 20%;
+  animation-delay: -1.4s;
+  opacity: 0.65;
+}
+.marketing-shell .ar-hero-loop__ring.r4 {
+  width: 50%;
+  height: 26%;
+  animation-delay: -2.1s;
+  opacity: 0.45;
+}
+.marketing-shell .ar-hero-loop__ring.r5 {
+  width: 62%;
+  height: 32%;
+  animation-delay: -2.8s;
+  opacity: 0.28;
+}
+
+.marketing-shell .ar-hero-loop__scan {
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(232, 213, 163, 0.15),
+    #f6edd2,
+    rgba(232, 213, 163, 0.15),
+    transparent
+  );
+  box-shadow: 0 0 14px rgba(212, 179, 106, 0.85);
+  mix-blend-mode: screen;
+  animation: ar-hero-scan 6s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__spark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background:
+    linear-gradient(180deg, transparent 46%, #fff8e6 46% 54%, transparent 54%),
+    linear-gradient(90deg, transparent 46%, #fff8e6 46% 54%, transparent 54%);
+  filter: drop-shadow(0 0 4px rgba(255, 248, 230, 0.9));
+  mix-blend-mode: screen;
+  animation: ar-hero-spark 2.6s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__spark.s1 { left: 48%; top: 22%; animation-delay: 0s; }
+.marketing-shell .ar-hero-loop__spark.s2 { left: 54%; top: 26%; width: 7px; height: 7px; animation-delay: -0.4s; }
+.marketing-shell .ar-hero-loop__spark.s3 { left: 44%; top: 28%; width: 8px; height: 8px; animation-delay: -0.9s; }
+.marketing-shell .ar-hero-loop__spark.s4 { left: 51%; top: 18%; width: 12px; height: 12px; animation-delay: -1.3s; }
+.marketing-shell .ar-hero-loop__spark.s5 { left: 57%; top: 32%; animation-delay: -1.7s; }
+.marketing-shell .ar-hero-loop__spark.s6 { left: 41%; top: 24%; width: 6px; height: 6px; animation-delay: -2.1s; }
+.marketing-shell .ar-hero-loop__spark.s7 { left: 50%; top: 34%; width: 9px; height: 9px; animation-delay: -0.6s; }
+.marketing-shell .ar-hero-loop__spark.s8 { left: 46%; top: 16%; width: 5px; height: 5px; animation-delay: -1.1s; }
+.marketing-shell .ar-hero-loop__spark.s9 { left: 53%; top: 21%; width: 6px; height: 6px; animation-delay: -1.9s; }
+
+.marketing-shell .ar-hero-loop__steam {
+  position: absolute;
+  width: 72px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 80%, rgba(255, 250, 240, 0.34), rgba(232, 213, 163, 0.08) 42%, transparent 72%);
+  filter: blur(12px);
+  mix-blend-mode: screen;
+  animation: ar-hero-steam 6.4s ease-in-out infinite;
+}
+
+.marketing-shell .ar-hero-loop__steam.w1 { left: 44%; top: 18%; animation-delay: 0s; }
+.marketing-shell .ar-hero-loop__steam.w2 { left: 50%; top: 14%; width: 88px; animation-delay: -1.1s; }
+.marketing-shell .ar-hero-loop__steam.w3 { left: 38%; top: 22%; width: 60px; height: 110px; animation-delay: -2.2s; }
+.marketing-shell .ar-hero-loop__steam.w4 { left: 54%; top: 16%; width: 54px; animation-delay: -3.3s; }
+.marketing-shell .ar-hero-loop__steam.w5 { left: 47%; top: 10%; width: 96px; height: 150px; animation-delay: -4.1s; }
+.marketing-shell .ar-hero-loop__steam.w6 { left: 41%; top: 20%; animation-delay: -5.2s; }
+.marketing-shell .ar-hero-loop__steam.w7 { left: 52%; top: 12%; width: 64px; animation-delay: -2.8s; }
+
+.marketing-shell .ar-hero-loop__dust {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(232, 213, 163, 0.7);
+  box-shadow: 0 0 6px rgba(212, 179, 106, 0.8);
+  animation: ar-hero-dust 11s linear infinite;
+}
+
+.marketing-shell .ar-hero-loop__dust.d1 { left: 22%; top: 70%; animation-delay: 0s; }
+.marketing-shell .ar-hero-loop__dust.d2 { left: 30%; top: 62%; animation-delay: -1s; width: 2px; height: 2px; }
+.marketing-shell .ar-hero-loop__dust.d3 { left: 38%; top: 54%; animation-delay: -2s; }
+.marketing-shell .ar-hero-loop__dust.d4 { left: 46%; top: 48%; animation-delay: -3s; width: 2px; height: 2px; }
+.marketing-shell .ar-hero-loop__dust.d5 { left: 58%; top: 44%; animation-delay: -4s; }
+.marketing-shell .ar-hero-loop__dust.d6 { left: 66%; top: 52%; animation-delay: -5s; }
+.marketing-shell .ar-hero-loop__dust.d7 { left: 72%; top: 64%; animation-delay: -6s; width: 2px; height: 2px; }
+.marketing-shell .ar-hero-loop__dust.d8 { left: 18%; top: 48%; animation-delay: -7s; }
+.marketing-shell .ar-hero-loop__dust.d9 { left: 80%; top: 40%; animation-delay: -8s; }
+.marketing-shell .ar-hero-loop__dust.d10 { left: 27%; top: 36%; animation-delay: -9s; width: 2px; height: 2px; }
+.marketing-shell .ar-hero-loop__dust.d11 { left: 63%; top: 30%; animation-delay: -10s; }
+.marketing-shell .ar-hero-loop__dust.d12 { left: 50%; top: 58%; animation-delay: -4.5s; }
+
+@keyframes ar-hero-push {
+  0%,
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.06) translate3d(-0.7%, -0.55%, 0);
+  }
+}
+
+@keyframes ar-hero-parallax {
+  0%,
+  100% {
+    transform: perspective(1200px) rotateY(-2.4deg) rotateX(0.5deg);
+  }
+  50% {
+    transform: perspective(1200px) rotateY(2.4deg) rotateX(-0.35deg);
+  }
+}
+
+@keyframes ar-hero-jewel-tilt {
+  0%,
+  100% {
+    transform: perspective(900px) rotateY(-6.5deg) translateY(0);
+  }
+  50% {
+    transform: perspective(900px) rotateY(6.5deg) translateY(-7px);
+  }
+}
+
+@keyframes ar-hero-food-tilt {
+  0%,
+  100% {
+    transform: perspective(1000px) rotateY(-4deg) rotateZ(-1.2deg) translateY(0);
+  }
+  50% {
+    transform: perspective(1000px) rotateY(4deg) rotateZ(1.2deg) translateY(-6px);
+  }
+}
+
+@keyframes ar-hero-portal {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes ar-hero-ring {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scaleX(1.45) scale(0.84);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scaleX(1.45) scale(1.06);
+  }
+}
+
+@keyframes ar-hero-beams {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: translateY(4px);
+  }
+  50% {
+    opacity: 0.55;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes ar-hero-scan {
+  0% {
+    top: 16%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  86% {
+    opacity: 0.7;
+  }
+  100% {
+    top: 48%;
+    opacity: 0;
+  }
+}
+
+@keyframes ar-hero-spark {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale(0.7) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(18deg);
+  }
+}
+
+@keyframes ar-hero-steam {
+  0% {
+    transform: translate3d(0, 16px, 0) scale(0.72);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.4;
+  }
+  70% {
+    opacity: 0.16;
+  }
+  100% {
+    transform: translate3d(10px, -96px, 0) scale(1.28);
+    opacity: 0;
+  }
+}
+
+@keyframes ar-hero-dust {
+  0% {
+    transform: translate3d(0, 10px, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.8;
+  }
+  88% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate3d(8px, -120px, 0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-shell .ar-hero-loop__ken,
+  .marketing-shell .ar-hero-loop__rig,
+  .marketing-shell .ar-hero-loop__product,
+  .marketing-shell .ar-hero-loop__portal,
+  .marketing-shell .ar-hero-loop__beams,
+  .marketing-shell .ar-hero-loop__ring,
+  .marketing-shell .ar-hero-loop__scan,
+  .marketing-shell .ar-hero-loop__spark,
+  .marketing-shell .ar-hero-loop__steam,
+  .marketing-shell .ar-hero-loop__dust {
+    animation: none !important;
+  }
+
+  .marketing-shell .ar-hero-loop__plate {
+    transition: none !important;
+  }
+}
+
+.marketing-shell input,
+.marketing-shell textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.marketing-shell input:focus,
+.marketing-shell textarea:focus {
+  outline: none;
+  border-color: rgba(183, 168, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(139, 124, 255, 0.18);
+}
+
+/* —— Capability visuals —— */
+.marketing-shell .cap-deck,
+.marketing-shell .cap-browser,
+.marketing-shell .cap-mat,
+.marketing-shell .cap-ar {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  --px: 0;
+  --py: 0;
+}
+
+.marketing-shell .cap-deck,
+.marketing-shell .cap-browser {
+  pointer-events: auto;
+}
+
+.marketing-shell .cap-deck {
+  perspective: 1200px;
+}
+
+.marketing-shell .cap-deck__stage {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 168px;
+  height: 210px;
+  margin-left: -84px;
+  margin-top: -118px;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--py) * -7deg)) rotateY(calc(var(--px) * 10deg));
+  animation: cap-deck-float 11s ease-in-out infinite;
+}
+
+.marketing-shell .cap-panel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(214, 214, 230, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 28%),
+    #14151c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset -1px 0 0 rgba(183, 168, 255, 0.18),
+    0 22px 40px rgba(0, 0, 0, 0.45);
+  transition: transform 0.7s var(--ease-out);
+}
+
+.marketing-shell .cap-panel img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 38%;
+}
+
+.marketing-shell .cap-panel__meta,
+.marketing-shell .cap-panel__type,
+.marketing-shell .cap-panel__reel {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  color: #f3efe6;
+}
+
+.marketing-shell .cap-panel__meta p,
+.marketing-shell .cap-panel__type p,
+.marketing-shell .cap-panel__reel span {
+  margin: 0;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(243, 239, 230, 0.62);
+}
+
+.marketing-shell .cap-panel__meta h4,
+.marketing-shell .cap-panel__type h4,
+.marketing-shell .cap-panel__reel b {
+  margin: 4px 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: -0.04em;
+}
+
+.marketing-shell .cap-panel__meta span,
+.marketing-shell .cap-panel__type span {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b7a8ff;
+}
+
+.marketing-shell .cap-panel__type {
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(139, 124, 255, 0.35), transparent 46%),
+    linear-gradient(180deg, #1a1b24, #0d0e14);
+}
+
+.marketing-shell .cap-panel__type--led {
+  background:
+    linear-gradient(180deg, rgba(243, 239, 230, 0.08), transparent 40%),
+    #101114;
+}
+
+.marketing-shell .cap-panel__type--led h4 {
+  font-size: 1.15rem;
+}
+
+.marketing-shell .cap-panel__reel {
+  top: auto;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72));
+  padding: 14px 10px 10px;
+}
+
+.marketing-shell .cap-panel--1 { transform: translate3d(-18px, 10px, -40px) rotateY(-18deg) rotateX(4deg); z-index: 5; }
+.marketing-shell .cap-panel--2 { transform: translate3d(8px, -6px, -18px) rotateY(-8deg); z-index: 4; }
+.marketing-shell .cap-panel--3 { transform: translate3d(28px, -18px, 8px) rotateY(4deg); z-index: 3; }
+.marketing-shell .cap-panel--4 { width: 92px; left: auto; right: -8px; top: 18px; bottom: 42px; transform: translate3d(36px, -8px, -28px) rotateY(16deg); z-index: 2; }
+.marketing-shell .cap-panel--5 { transform: translate3d(-36px, -28px, -56px) rotateY(-22deg) rotateX(8deg); z-index: 1; }
+
+.marketing-shell article:hover .cap-panel--1,
+.marketing-shell .cap-deck:hover .cap-panel--1 {
+  transform: translate3d(-28px, -8px, 10px) rotateY(-12deg) rotateX(2deg);
+}
+.marketing-shell article:hover .cap-panel--2,
+.marketing-shell .cap-deck:hover .cap-panel--2 {
+  transform: translate3d(-4px, -14px, 18px) rotateY(-4deg);
+}
+.marketing-shell article:hover .cap-panel--3,
+.marketing-shell .cap-deck:hover .cap-panel--3 {
+  transform: translate3d(18px, -22px, 28px) rotateY(3deg);
+}
+.marketing-shell article:hover .cap-panel--4,
+.marketing-shell .cap-deck:hover .cap-panel--4 {
+  transform: translate3d(50px, -18px, 12px) rotateY(12deg);
+}
+.marketing-shell article:hover .cap-panel--5,
+.marketing-shell .cap-deck:hover .cap-panel--5 {
+  transform: translate3d(-46px, -36px, -20px) rotateY(-18deg);
+}
+
+@keyframes cap-deck-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+
+.marketing-shell .cap-browser {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem 1.5rem 4.5rem;
+  perspective: 1100px;
+}
+
+.marketing-shell .cap-browser__frame {
+  width: min(100%, 340px);
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(183, 168, 255, 0.28);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(12, 12, 16, 0.92));
+  box-shadow:
+    0 0 0 1px rgba(139, 124, 255, 0.12),
+    0 24px 50px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  transform: rotateX(calc(8deg + var(--py) * -6deg)) rotateY(calc(-10deg + var(--px) * 8deg));
+  transform-style: preserve-3d;
+  transition: transform 0.6s var(--ease-out);
+}
+
+.marketing-shell article:hover .cap-browser__frame,
+.marketing-shell .cap-browser:hover .cap-browser__frame {
+  transform: rotateX(4deg) rotateY(4deg) translateZ(8px);
+}
+
+.marketing-shell .cap-browser__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.marketing-shell .cap-browser__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3a3b44;
+}
+.marketing-shell .cap-browser__dot:nth-child(1) { background: #c97a7a; }
+.marketing-shell .cap-browser__dot:nth-child(2) { background: #c9b57a; }
+.marketing-shell .cap-browser__dot:nth-child(3) { background: #7aa37a; }
+
+.marketing-shell .cap-browser__url {
+  flex: 1;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px 10px;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: rgba(243, 239, 230, 0.55);
+}
+
+.marketing-shell .cap-browser__page {
+  height: 168px;
+  overflow: hidden;
+}
+
+.marketing-shell .cap-browser__scroll {
+  position: relative;
+  padding: 12px;
+  animation: cap-browser-scroll 7s ease-in-out infinite;
+}
+
+.marketing-shell .cap-browser__hero {
+  position: relative;
+  height: 92px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.marketing-shell .cap-browser__hero img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.marketing-shell .cap-browser__thumb {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(16, 17, 20, 0.72);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+}
+
+.marketing-shell .cap-browser__chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.marketing-shell .cap-browser__chips span {
+  border-radius: 999px;
+  border: 1px solid rgba(183, 168, 255, 0.28);
+  padding: 3px 8px;
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  color: #cfc8ff;
+}
+
+.marketing-shell .cap-browser__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.marketing-shell .cap-browser__row p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.marketing-shell .cap-browser__row small {
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.marketing-shell .cap-browser__cta {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(243, 239, 230, 0.12);
+  color: #f3efe6;
+  padding: 6px 10px;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  transition: background 0.4s, box-shadow 0.4s, color 0.4s;
+}
+
+.marketing-shell article:hover .cap-browser__cta,
+.marketing-shell .cap-browser:hover .cap-browser__cta {
+  background: #f3efe6;
+  color: #111;
+  box-shadow: 0 0 18px rgba(243, 239, 230, 0.25);
+}
+
+.marketing-shell .cap-browser__float {
+  position: absolute;
+  right: 16px;
+  top: 28px;
+  width: 72px;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: #101114;
+  transform: translateZ(0);
+  transition: transform 0.7s var(--ease-out);
+}
+
+.marketing-shell .cap-browser__float img {
+  width: 100%;
+  height: 54px;
+  max-width: none;
+  object-fit: cover;
+}
+
+.marketing-shell .cap-browser__float span {
+  display: block;
+  padding: 4px;
+  font-size: 0.5rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #b7a8ff;
+}
+
+.marketing-shell article:hover .cap-browser__float,
+.marketing-shell .cap-browser:hover .cap-browser__float {
+  transform: translate3d(-6px, -8px, 20px);
+}
+
+.marketing-shell .cap-browser__pointer {
+  position: absolute;
+  left: 58%;
+  top: 46%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50% 50% 50% 0;
+  background: #f3efe6;
+  transform: rotate(46deg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  animation: cap-pointer 5.5s ease-in-out infinite;
+}
+
+@keyframes cap-browser-scroll {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-26px); }
+}
+
+@keyframes cap-pointer {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 10px 8px; }
+}
+
+.marketing-shell .cap-mat {
+  background: radial-gradient(ellipse at 50% 42%, rgba(139, 124, 255, 0.16), transparent 58%);
+}
+
+.marketing-shell .cap-mat__still {
+  position: absolute;
+  inset: 4% 8% 22%;
+  width: auto;
+  height: auto;
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 34%;
+  mask-image: radial-gradient(ellipse at 50% 38%, #000 38%, transparent 72%);
+  opacity: 0.92;
+}
+
+.marketing-shell .cap-mat__glow {
+  position: absolute;
+  inset: 18% 22% 32%;
+  background: radial-gradient(circle, rgba(213, 219, 230, 0.16), transparent 66%);
+}
+
+.marketing-shell .cap-mat__ring {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 210px;
+  height: 84px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  transform: rotateX(64deg);
+}
+
+.marketing-shell .cap-mat__ring--wire {
+  border: 2px dashed rgba(186, 194, 220, 0.7);
+  box-shadow: 0 0 18px rgba(139, 124, 255, 0.18);
+}
+
+.marketing-shell .cap-mat__ring--clay {
+  border: 18px solid #c6bdb0;
+  opacity: 0.7;
+  clip-path: inset(0 50% 0 0);
+  animation: cap-mat-reveal 7s ease-in-out infinite;
+}
+
+.marketing-shell .cap-mat__ring--chrome {
+  border: 18px solid #e4e8f0;
+  box-shadow: 0 0 28px rgba(183, 168, 255, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.45);
+  clip-path: inset(0 62% 0 0);
+  animation: cap-mat-chrome 7s ease-in-out infinite;
+}
+
+.marketing-shell .cap-mat__gem {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 22px;
+  height: 22px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: linear-gradient(135deg, #fff, #9ab6ff);
+  box-shadow: 0 0 18px rgba(154, 182, 255, 0.7);
+}
+
+.marketing-shell .cap-mat__scan {
+  position: absolute;
+  top: 18%;
+  bottom: 28%;
+  width: 2px;
+  left: 28%;
+  background: #cfc8ff;
+  box-shadow: 0 0 16px #8b7cff;
+  animation: cap-mat-scan 7s ease-in-out infinite;
+}
+
+@keyframes cap-mat-reveal {
+  0%, 100% { clip-path: inset(0 88% 0 0); }
+  50% { clip-path: inset(0 8% 0 0); }
+}
+@keyframes cap-mat-chrome {
+  0%, 100% { clip-path: inset(0 96% 0 0); }
+  50% { clip-path: inset(0 18% 0 0); }
+}
+@keyframes cap-mat-scan {
+  0%, 100% { left: 28%; }
+  50% { left: 70%; }
+}
+
+.marketing-shell .cap-ar {
+  background: radial-gradient(ellipse at 62% 48%, rgba(139, 124, 255, 0.14), transparent 56%);
+}
+
+.marketing-shell .cap-ar__grid {
+  position: absolute;
+  left: 12%;
+  right: 8%;
+  bottom: 16%;
+  height: 38%;
+  background-image:
+    linear-gradient(rgba(183, 168, 255, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(183, 168, 255, 0.18) 1px, transparent 1px);
+  background-size: 18% 22%;
+  transform: perspective(400px) rotateX(62deg);
+  opacity: 0.35;
+}
+
+.marketing-shell article:hover .cap-ar__grid {
+  opacity: 0.7;
+}
+
+.marketing-shell .cap-ar__phone {
+  position: absolute;
+  left: 18%;
+  top: 18%;
+  width: 118px;
+  height: 210px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #c5ccd8, #3c414c);
+  transform: rotate(-12deg);
+  box-shadow: 0 24px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.marketing-shell article:hover .cap-ar__phone {
+  transform: rotate(-8deg) translate(-4px, 6px);
+}
+
+.marketing-shell .cap-ar__screen {
+  position: absolute;
+  inset: 10px 8px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #0b0c12;
+}
+
+.marketing-shell .cap-ar__ui {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.marketing-shell .cap-ar__chips {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.marketing-shell .cap-ar__chips span,
+.marketing-shell .cap-ar__hud span,
+.marketing-shell .cap-ar__labels span {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 2px 6px;
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+  color: rgba(243, 239, 230, 0.78);
+}
+
+.marketing-shell .cap-ar__emerge {
+  position: absolute;
+  left: 42%;
+  width: 150px;
+  height: 92px;
+  overflow: hidden;
+  border-radius: 12px;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 40%, transparent 74%);
+}
+
+.marketing-shell .cap-ar__emerge img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.marketing-shell .cap-ar__emerge--jewel {
+  top: 8%;
+  animation: cap-ar-emerge 8s ease-in-out infinite;
+  opacity: 1;
+}
+
+.marketing-shell .cap-ar__emerge--food {
+  top: 8%;
+  animation: cap-ar-emerge 8s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+.marketing-shell article:hover .cap-ar__emerge {
+  transform: translateY(-10px) scale(1.04);
+}
+
+.marketing-shell .cap-ar__labels {
+  position: absolute;
+  right: 8%;
+  top: 16%;
+  display: grid;
+  gap: 6px;
+}
+
+.marketing-shell .cap-ar__hud {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 46%;
+  pointer-events: none;
+}
+
+.marketing-shell .cap-ar__wa {
+  position: absolute;
+  right: 14%;
+  bottom: 28%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #25d366;
+  opacity: 0;
+  box-shadow: 0 0 10px #25d366;
+}
+
+.marketing-shell article:hover .cap-ar__wa {
+  opacity: 1;
+}
+
+@keyframes cap-ar-emerge {
+  0%, 8% { opacity: 0.2; transform: translateY(10px) scale(0.92); }
+  14%, 40% { opacity: 1; transform: translateY(-10px) scale(1); }
+  48%, 100% { opacity: 0; transform: translateY(16px) scale(0.86); }
+}
+
+/* —— Experience cards —— */
+.marketing-shell .exp-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  --px: 0;
+  --py: 0;
+}
+
+.marketing-shell .exp-scene__bg {
+  position: absolute;
+  inset: -8%;
+  transform: translate(calc(var(--px) * 2px), calc(var(--py) * 2px));
+}
+
+.marketing-shell .exp-scene--jewel .exp-scene__bg {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(212, 179, 106, 0.28), transparent 46%),
+    linear-gradient(#120e0a, #070605);
+}
+
+.marketing-shell .exp-scene--food .exp-scene__bg {
+  background:
+    radial-gradient(circle at 70% 30%, rgba(196, 69, 54, 0.32), transparent 42%),
+    linear-gradient(#2c0d12, #12060a);
+}
+
+.marketing-shell .exp-scene--launch .exp-scene__bg {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(139, 124, 255, 0.28), transparent 46%),
+    linear-gradient(#12121a, #080809);
+}
+
+.marketing-shell .exp-scene__product {
+  position: absolute;
+  inset: 6% 4% 18%;
+  transform: translate(calc(var(--px) * 6px), calc(var(--py) * 6px));
+  transition: transform 0.7s var(--ease-out);
+}
+
+.marketing-shell .exp-scene__product img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 36%;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 42%, transparent 78%);
+}
+
+.marketing-shell .group:hover .exp-scene--jewel .exp-scene__product {
+  transform: translate(calc(var(--px) * 6px), calc(var(--py) * 6px - 10px)) scale(1.06);
+}
+
+.marketing-shell .group:hover .exp-scene--food .exp-scene__product {
+  transform: translate(calc(var(--px) * 6px), calc(var(--py) * 6px - 8px));
+}
+
+.marketing-shell .exp-scene__frame {
+  position: absolute;
+  inset: 16% 18% 28%;
+  border: 1px solid rgba(232, 213, 163, 0.28);
+  transform: translate(calc(var(--px) * 10px), calc(var(--py) * 10px));
+}
+
+.marketing-shell .exp-scene__frame::before,
+.marketing-shell .exp-scene__frame::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid rgba(243, 239, 230, 0.7);
+}
+.marketing-shell .exp-scene__frame::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.marketing-shell .exp-scene__frame::after { right: -1px; bottom: -1px; border-left: 0; border-top: 0; }
+
+.marketing-shell .exp-scene__scan {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  height: 1px;
+  background: rgba(243, 239, 230, 0.7);
+  box-shadow: 0 0 12px rgba(212, 179, 106, 0.45);
+  animation: exp-scan 5.5s ease-in-out infinite;
+}
+
+.marketing-shell .exp-scene__node {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e8d5a3;
+  box-shadow: 0 0 8px #d4b36a;
+}
+.marketing-shell .exp-scene__node.n1 { left: 18%; top: 22%; }
+.marketing-shell .exp-scene__node.n2 { right: 20%; top: 26%; }
+.marketing-shell .exp-scene__node.n3 { left: 22%; bottom: 30%; }
+.marketing-shell .exp-scene__node.n4 { right: 18%; bottom: 26%; }
+
+.marketing-shell .exp-scene__grid {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 18%;
+  height: 34%;
+  background-image:
+    linear-gradient(rgba(196, 69, 54, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196, 69, 54, 0.28) 1px, transparent 1px);
+  background-size: 16% 22%;
+  transform: perspective(380px) rotateX(64deg);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.marketing-shell .group:hover .exp-scene__grid {
+  opacity: 0.8;
+}
+
+.marketing-shell .exp-scene__ring {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  width: 42%;
+  height: 18%;
+  border: 1px solid rgba(232, 213, 163, 0.4);
+  border-radius: 50%;
+  translate: -50% 0;
+  animation: exp-ring 4.8s ease-in-out infinite;
+}
+
+.marketing-shell .exp-scene__steam {
+  position: absolute;
+  left: 38%;
+  right: 38%;
+  top: 12%;
+  height: 28%;
+  background: radial-gradient(ellipse, rgba(243, 239, 230, 0.18), transparent 70%);
+  filter: blur(8px);
+  animation: exp-steam 4s ease-in-out infinite;
+}
+
+.marketing-shell .exp-scene__phone {
+  position: absolute;
+  right: 12%;
+  bottom: 22%;
+  width: 28px;
+  height: 48px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  opacity: 0;
+  transform: translate(calc(var(--px) * 12px), calc(var(--py) * 12px));
+  transition: opacity 0.45s;
+}
+
+.marketing-shell .group:hover .exp-scene__phone {
+  opacity: 0.8;
+}
+
+.marketing-shell .exp-scene__garnish {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d4783a;
+  animation: exp-garnish 6s ease-in-out infinite;
+}
+.marketing-shell .exp-scene__garnish.g1 { left: 28%; top: 30%; background: #4a7c59; }
+.marketing-shell .exp-scene__garnish.g2 { right: 26%; top: 36%; }
+
+.marketing-shell .exp-scene__sculpture {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 120px;
+  height: 120px;
+  translate: -50% -50%;
+  transform: translate(calc(var(--px) * 7px), calc(var(--py) * 7px));
+  transition: transform 0.7s var(--ease-out);
+}
+
+.marketing-shell .group:hover .exp-scene__sculpture {
+  transform: translate(calc(var(--px) * 7px), calc(var(--py) * 7px)) rotate(12deg) scale(1.06);
+}
+
+.marketing-shell .exp-scene__orb {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, #f7f3ea, #c9c4e6 34%, #8b7cff 58%, #2a2740 82%);
+  box-shadow: 0 0 40px rgba(139, 124, 255, 0.35), inset 0 0 18px rgba(255, 255, 255, 0.2);
+}
+
+.marketing-shell .exp-scene__band {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  border: 4px solid rgba(232, 228, 220, 0.82);
+  box-shadow: 0 0 16px rgba(232, 228, 220, 0.2);
+  transform: rotateX(68deg);
+}
+
+.marketing-shell .exp-scene__glass {
+  position: absolute;
+  top: 10%;
+  bottom: 16%;
+  width: 38%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  transition: transform 0.7s var(--ease-out);
+  transform: translate(calc(var(--px) * 10px), calc(var(--py) * 10px));
+}
+.marketing-shell .exp-scene__glass.g-a { left: 8%; }
+.marketing-shell .exp-scene__glass.g-b { right: 8%; }
+
+.marketing-shell .group:hover .exp-scene__glass.g-a {
+  transform: translate(calc(var(--px) * 10px - 18px), calc(var(--py) * 10px));
+}
+.marketing-shell .group:hover .exp-scene__glass.g-b {
+  transform: translate(calc(var(--px) * 10px + 18px), calc(var(--py) * 10px));
+}
+
+.marketing-shell .exp-scene__cta {
+  position: absolute;
+  left: 24px;
+  bottom: 78px;
+  z-index: 4;
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(243, 239, 230, 0.0);
+  transform: translate(calc(var(--px) * 8px), calc(var(--py) * 8px));
+  transition: color 0.4s, transform 0.4s;
+}
+
+.marketing-shell .group:hover .exp-scene__cta {
+  color: rgba(243, 239, 230, 0.82);
+}
+
+.marketing-shell .group:hover .exp-scene--jewel {
+  filter: brightness(0.86);
+}
+
+.marketing-shell .group:hover .exp-title {
+  font-size: 2.125rem;
+}
+
+.marketing-shell .exp-title {
+  transition: font-size 0.45s var(--ease-out);
+}
+
+@keyframes exp-scan {
+  0%, 100% { top: 22%; opacity: 0.2; }
+  50% { top: 58%; opacity: 0.9; }
+}
+@keyframes exp-ring {
+  0%, 100% { opacity: 0.2; transform: scaleX(1.2); }
+  50% { opacity: 0.8; transform: scaleX(1.45); }
+}
+@keyframes exp-steam {
+  0%, 100% { opacity: 0.2; transform: translateY(6px); }
+  50% { opacity: 0.7; transform: translateY(-8px); }
+}
+@keyframes exp-garnish {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* —— Final CTA —— */
+.marketing-shell .cta-final__core {
+  position: absolute;
+  right: -8%;
+  top: 4%;
+  z-index: 1;
+  width: min(62vw, 720px);
+  height: 120%;
+  pointer-events: none;
+  transform: translateY(80px) scale(0.85) rotate(-15deg);
+  transform-origin: 55% 45%;
+  opacity: 0.72;
+  transition: transform 1.45s var(--ease-out), opacity 1s;
+}
+
+.marketing-shell .cta-final.is-in .cta-final__core {
+  transform: translateY(0) scale(1) rotate(0deg);
+  opacity: 1;
+}
+
+.marketing-shell .xcore-wrap,
+.marketing-shell .xcore-fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.marketing-shell .xcore-fallback__orb {
+  position: absolute;
+  left: 38%;
+  top: 28%;
+  width: min(42%, 280px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, rgba(243, 239, 230, 0.45), rgba(139, 124, 255, 0.28) 42%, rgba(18, 16, 28, 0.4) 70%);
+  box-shadow: 0 0 80px rgba(139, 124, 255, 0.22);
+}
+
+.marketing-shell .xcore-fallback__core {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 28px;
+  height: 28px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #8b7cff;
+  box-shadow: 0 0 24px #8b7cff;
+}
+
+.marketing-shell .xcore-fallback__ribbon {
+  position: absolute;
+  left: 32%;
+  top: 24%;
+  width: min(52%, 340px);
+  aspect-ratio: 1.6;
+  border-radius: 50%;
+  border: 2px solid rgba(232, 228, 220, 0.55);
+  transform: rotateX(66deg);
+}
+
+.marketing-shell .xcore-fallback__ribbon--b {
+  top: 30%;
+  border-color: rgba(158, 166, 196, 0.4);
+  transform: rotateX(72deg) rotateZ(28deg);
+}
+
+.marketing-shell .xcore-fallback__scan {
+  position: absolute;
+  left: 34%;
+  right: 22%;
+  height: 10px;
+  top: 44%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(183, 168, 255, 0.45), transparent);
+  animation: xcore-scan 5.5s ease-in-out infinite;
+}
+
+.marketing-shell a.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: #f3efe6;
+  color: #111;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: padding 0.4s var(--ease-out), transform 0.4s var(--ease-out), background 0.3s;
+}
+
+.marketing-shell a.cta-primary:hover {
+  padding-left: 28px;
+  padding-right: 30px;
+  background: #fff;
+}
+
+.marketing-shell .cta-primary__arrow {
+  display: inline-block;
+  transition: transform 0.4s var(--ease-out);
+}
+
+.marketing-shell a.cta-primary:hover .cta-primary__arrow {
+  transform: translate(3px, -3px);
+}
+
+.marketing-shell a.cta-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(243, 239, 230, 0.22);
+  background: transparent;
+  color: #f3efe6;
+  font-size: 0.95rem;
+  transition: border-color 0.35s, background 0.35s;
+}
+
+.marketing-shell a.cta-wa:hover {
+  border-color: rgba(243, 239, 230, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.marketing-shell .cta-wa__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #25d366;
+  opacity: 0;
+  box-shadow: 0 0 8px #25d366;
+  transition: opacity 0.3s;
+}
+
+.marketing-shell a.cta-wa:hover .cta-wa__dot {
+  opacity: 1;
+}
+
+@keyframes xcore-scan {
+  0%, 100% { top: 34%; opacity: 0.15; }
+  50% { top: 58%; opacity: 0.8; }
+}
+
+@media (max-width: 767px) {
+  .marketing-shell .cta-final__core {
+    right: -18%;
+    top: 42%;
+    width: 120%;
+    height: 70%;
+    opacity: 0.45;
+  }
+
+  .marketing-shell .cap-panel--4,
+  .marketing-shell .cap-browser__pointer,
+  .marketing-shell .exp-scene__garnish,
+  .marketing-shell .cap-ar__emerge--food {
+    display: none;
+  }
+
+  .marketing-shell .cap-deck__stage {
+    width: 140px;
+    height: 180px;
+    margin-left: -70px;
+  }
+}
+
+.marketing-shell .sell-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: max(360px, 44px);
+  min-width: 44px;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3.5rem 2rem;
+  isolation: isolate;
+  transition: border-color 0.45s;
+}
+
+.marketing-shell .sell-card--jewel {
+  background:
+    radial-gradient(circle at 78% 30%, rgba(232, 213, 163, 0.16), transparent 46%),
+    linear-gradient(180deg, #120e0a, #070605);
+}
+
+.marketing-shell .sell-card--food {
+  background:
+    radial-gradient(circle at 78% 28%, rgba(212, 120, 58, 0.16), transparent 46%),
+    linear-gradient(180deg, #2c0d12, #12060a);
+}
+
+.marketing-shell .sell-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(7, 6, 5, 0.72) 0%, rgba(7, 6, 5, 0.28) 42%, transparent 70%);
+}
+
+.marketing-shell .sell-card--food::before {
+  background: linear-gradient(90deg, rgba(18, 6, 10, 0.72) 0%, rgba(18, 6, 10, 0.28) 42%, transparent 70%);
+}
+
+.marketing-shell .sell-card__copy {
+  position: relative;
+  z-index: 2;
+}
+
+.marketing-shell .sell-card__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.marketing-shell .sell-card__object,
+.marketing-shell .sell-card__dish {
+  position: absolute;
+  inset: 0 0 0 18%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.marketing-shell .sell-card__object img,
+.marketing-shell .sell-card__dish img {
+  position: absolute;
+  inset: -8% -4% -8% 0;
+  width: 108%;
+  height: 116%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 62% 40%;
+  transform: scale(1.04);
+  transform-origin: 68% 42%;
+  transition: transform 0.75s var(--ease-out), filter 0.55s;
+  mask-image: radial-gradient(ellipse 78% 86% at 72% 42%, #000 36%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 78% 86% at 72% 42%, #000 36%, transparent 78%);
+}
+
+.marketing-shell .sell-card__object img {
+  object-position: 58% 38%;
+  filter: saturate(1.04);
+}
+
+.marketing-shell .sell-card__dish img {
+  object-position: 64% 42%;
+}
+
+.marketing-shell .sell-card__node {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e8d5a3;
+  box-shadow: 0 0 10px #d4b36a;
+  z-index: 1;
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.45s, transform 0.45s, box-shadow 0.45s;
+}
+
+.marketing-shell .sell-card__node::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(232, 213, 163, 0.42);
+  border-radius: 50%;
+}
+
+.marketing-shell .sell-card__node.n1 { left: 18%; top: 22%; }
+.marketing-shell .sell-card__node.n2 { right: 18%; top: 26%; }
+.marketing-shell .sell-card__node.n3 { left: 36%; bottom: 22%; }
+
+.marketing-shell .sell-card__plane {
+  position: absolute;
+  left: 22%;
+  right: 8%;
+  bottom: 8%;
+  height: 38%;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(212, 120, 58, 0.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 120, 58, 0.38) 1px, transparent 1px);
+  background-size: 14% 24%;
+  transform: perspective(480px) rotateX(64deg);
+  transform-origin: 70% 100%;
+  opacity: 0.34;
+  mask-image: radial-gradient(ellipse at 70% 55%, #000 18%, transparent 74%);
+  -webkit-mask-image: radial-gradient(ellipse at 70% 55%, #000 18%, transparent 74%);
+  transition: opacity 0.5s, transform 0.7s var(--ease-out);
+}
+
+.marketing-shell .sell-card:focus-visible,
+.marketing-shell .sell-card:active {
+  border-color: rgba(243, 239, 230, 0.28);
+}
+
+.marketing-shell .sell-card:focus-visible .sell-card__object img,
+.marketing-shell .sell-card:active .sell-card__object img,
+.marketing-shell .sell-card:focus-visible .sell-card__dish img,
+.marketing-shell .sell-card:active .sell-card__dish img {
+  transform: scale(1.16) translate3d(-10px, -8px, 0);
+}
+
+.marketing-shell .sell-card:focus-visible .sell-card__node,
+.marketing-shell .sell-card:active .sell-card__node {
+  opacity: 1;
+  transform: scale(1.25);
+  box-shadow: 0 0 16px #d4b36a, 0 0 28px rgba(212, 179, 106, 0.5);
+}
+
+.marketing-shell .sell-card:focus-visible .sell-card__plane,
+.marketing-shell .sell-card:active .sell-card__plane {
+  opacity: 0.82;
+  transform: perspective(480px) rotateX(64deg) scale(1.08);
+}
+
+@media (hover: hover) {
+  .marketing-shell .sell-card:hover {
+    border-color: rgba(243, 239, 230, 0.28);
+  }
+
+  .marketing-shell .sell-card:hover .sell-card__object img,
+  .marketing-shell .sell-card:hover .sell-card__dish img {
+    transform: scale(1.16) translate3d(-10px, -8px, 0);
+  }
+
+  .marketing-shell .sell-card:hover .sell-card__node {
+    opacity: 1;
+    transform: scale(1.25);
+    box-shadow: 0 0 16px #d4b36a, 0 0 28px rgba(212, 179, 106, 0.5);
+  }
+
+  .marketing-shell .sell-card:hover .sell-card__plane {
+    opacity: 0.82;
+    transform: perspective(480px) rotateX(64deg) scale(1.08);
+  }
+
+  .marketing-shell .sell-card--jewel:hover {
+    filter: saturate(1.05);
+  }
+}
+
+@media (max-width: 767px) {
+  .marketing-shell .sell-card {
+    min-height: 380px;
+  }
+
+  .marketing-shell .sell-card__object,
+  .marketing-shell .sell-card__dish {
+    inset: 0 0 18% 8%;
+  }
+}
+
+.marketing-shell .engine-flow {
+  position: absolute;
+  inset: 18% 10% 22%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marketing-shell .engine-flow li {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(8, 8, 9, 0.35);
+}
+
+.marketing-shell .exp-scene--engine .exp-scene__bg {
+  background:
+    radial-gradient(circle at 50% 20%, rgba(139, 124, 255, 0.22), transparent 48%),
+    linear-gradient(#12121a, #080809);
+}
+
+.marketing-shell .analytics-dash {
+  perspective: 1400px;
+}
+
+.marketing-shell .analytics-card:nth-child(1) { transform: translateY(0); }
+.marketing-shell .analytics-card:nth-child(2) { transform: translateY(-10px); }
+.marketing-shell .analytics-card:nth-child(3) { transform: translateY(8px); }
+.marketing-shell .analytics-card:nth-child(4) { transform: translateY(-6px); }
+
+.marketing-shell .jewel-page {
+  background:
+    radial-gradient(ellipse at 80% 0%, rgba(212, 179, 106, 0.08), transparent 42%),
+    #080809;
+  color: var(--cream);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-shell .cap-deck__stage,
+  .marketing-shell .cap-browser__scroll,
+  .marketing-shell .cap-browser__pointer,
+  .marketing-shell .cap-mat__ring--clay,
+  .marketing-shell .cap-mat__ring--chrome,
+  .marketing-shell .cap-mat__scan,
+  .marketing-shell .cap-ar__emerge,
+  .marketing-shell .exp-scene__scan,
+  .marketing-shell .exp-scene__ring,
+  .marketing-shell .exp-scene__steam,
+  .marketing-shell .exp-scene__garnish,
+  .marketing-shell .xcore-fallback__scan {
+    animation: none !important;
+  }
+
+  .marketing-shell .sell-card__object img,
+  .marketing-shell .sell-card__dish img,
+  .marketing-shell .sell-card__node,
+  .marketing-shell .sell-card__plane {
+    transition: none;
+  }
+
+  .marketing-shell .sell-card:hover .sell-card__object img,
+  .marketing-shell .sell-card:focus-visible .sell-card__object img,
+  .marketing-shell .sell-card:active .sell-card__object img,
+  .marketing-shell .sell-card:hover .sell-card__dish img,
+  .marketing-shell .sell-card:focus-visible .sell-card__dish img,
+  .marketing-shell .sell-card:active .sell-card__dish img {
+    transform: none;
+  }
+
+  .marketing-shell .cta-final__core {
+    transform: none !important;
+    opacity: 1;
+  }
+
+  .marketing-shell .cap-ar__emerge--jewel,
+  .marketing-shell .cap-mat__ring--chrome {
+    opacity: 1;
+    clip-path: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .try-on-shell header,
+  .try-on-shell .optical-glass,
+  .try-on-shell button {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.marketing-shell .food-hero-stage {
+  isolation: isolate;
+}
+
+.marketing-shell .food-hero-grid {
+  pointer-events: none;
+  position: absolute;
+  inset: 8% 6% 18%;
+  z-index: 2;
+  background-image:
+    linear-gradient(rgba(212, 179, 106, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 179, 106, 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse at 70% 45%, black 35%, transparent 72%);
+}
+
+.marketing-shell .food-hero-steps {
+  position: absolute;
+  left: 4%;
+  bottom: 6%;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.marketing-shell .food-hero-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-shell .food-hero-grid {
+    opacity: 0.35;
+  }
+}
+

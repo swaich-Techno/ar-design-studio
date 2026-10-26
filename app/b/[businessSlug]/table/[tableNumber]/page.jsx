@@ -19,9 +19,14 @@ export default async function PublicTablePage({ params }) {
   const table = await TableQR.findOne({ businessId: business._id, tableNumber, isActive: true }).lean();
   if (!table) notFound();
 
-  const products = await Product.find({ businessId: business._id, isAvailable: true, publicationStatus: { $in: ["APPROVED", "PUBLISHED"] } })
-    .select("name slug category price discountPrice shortDescription imageUrl fabricImageUrl stitchedPreviewImageUrl offerText isFeatured modelGlbUrl hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers tags productType")
-    .sort({ isFeatured: -1, createdAt: -1 })
+  const products = await Product.find({
+    businessId: business._id,
+    isAvailable: true,
+    isHidden: { $ne: true },
+    publicationStatus: { $in: ["APPROVED", "PUBLISHED"] }
+  })
+    .select("name slug category price discountPrice shortDescription imageUrl fabricImageUrl stitchedPreviewImageUrl offerText isFeatured isBestSeller isNewItem isTodaysSpecial isSoldOut dietary modelGlbUrl hasARModel supportsRotation stockStatus stockQuantity showStockToCustomers tags productType sortOrder variants addons")
+    .sort({ isFeatured: -1, sortOrder: 1, createdAt: -1 })
     .lean();
 
   const safeBusiness = {

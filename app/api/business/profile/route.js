@@ -5,7 +5,7 @@ import { slugify } from "@/lib/slugify";
 import Business from "@/models/Business";
 
 export async function GET() {
-  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.STAFF]);
   if (error) return error;
   await connectDB();
   const business = await Business.findById(user.businessId).lean();

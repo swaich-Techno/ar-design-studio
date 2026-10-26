@@ -14,7 +14,17 @@ async function eventCount(query, eventType) {
 }
 
 export async function GET() {
-  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser([
+    ROLES.SUPER_ADMIN,
+    ROLES.TEAM_ADMIN,
+    ROLES.FINANCE_MANAGER,
+    ROLES.AR_MANAGER,
+    ROLES.SUPPORT_STAFF,
+    ROLES.BUSINESS_OWNER,
+    ROLES.BUSINESS_MANAGER,
+    ROLES.BUSINESS_STAFF,
+    ROLES.STAFF
+  ]);
   if (error) return error;
   await connectDB();
 

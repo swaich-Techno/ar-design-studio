@@ -3,11 +3,18 @@ import { uploadBuffer } from "@/lib/cloudinary";
 import { requireUser } from "@/lib/api";
 import { ROLES } from "@/lib/permissions";
 import { mb } from "@/lib/plans";
+import { LIMITS, clientIp, rateLimit, tooMany } from "@/lib/rateLimit";
 import { resolveUploadPolicy } from "@/lib/uploadPolicy";
+import { validateUploadBuffer } from "@/lib/uploadValidate";
 
 export async function POST(request) {
-  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN, ROLES.AR_MANAGER, ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.BUSINESS_STAFF, ROLES.STAFF]);
   if (error) return error;
+  const limited = rateLimit(`upload:${user._id || clientIp(request)}`, LIMITS.upload);
+  if (!limited.ok) {
+    const fail = tooMany(limited.retryAfterSec);
+    return NextResponse.json(fail.body, { status: fail.status, headers: fail.headers });
+  }
   const form = await request.formData();
   const file = form.get("file");
   const folder = form.get("folder") || "ar-design-studio";
@@ -21,11 +28,14 @@ export async function POST(request) {
     fileSizeBytes: Number(file.size || 0),
     uploadType,
     productId,
-    folder
+    folder,
+    mimeType: file.type
   });
   if (policy.error) return NextResponse.json({ error: policy.error }, { status: policy.status });
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  const contents = validateUploadBuffer(buffer, uploadType);
+  if (contents.error) return NextResponse.json({ error: contents.error }, { status: contents.status });
   let result;
   try {
     result = await uploadBuffer(buffer, {
@@ -34,8 +44,8 @@ export async function POST(request) {
       fileName: String(file.name || "upload"),
       publicId: policy.publicId
     });
-  } catch (error) {
-    return NextResponse.json({ error: error.message || "Upload failed." }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Upload failed." }, { status: 500 });
   }
 
   if (policy.business) {

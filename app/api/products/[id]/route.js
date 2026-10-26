@@ -1,21 +1,16 @@
 import { connectDB } from "@/lib/mongodb";
 import { json, requireBusinessAccess, requireUser } from "@/lib/api";
 import { writeAudit } from "@/lib/audit";
-import { mb } from "@/lib/plans";
 import { ROLES, canStaff } from "@/lib/permissions";
+import { sanitizeProductInput } from "@/lib/productFields";
 import Business from "@/models/Business";
 import Product from "@/models/Product";
 
-const PRODUCT_TYPES = ["STANDARD", "FABRIC", "GARMENT", "FURNITURE", "JEWELLERY", "FOOD", "REAL_ESTATE", "AUTOMOBILE"];
-const STOCK_STATUSES = ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK", "MADE_TO_ORDER"];
-
-function toList(value) {
-  if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean);
-  return String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
-}
+const WRITE_ROLES = [ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.BUSINESS_STAFF, ROLES.STAFF];
+const READ_ROLES = [ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN, ROLES.AR_MANAGER, ROLES.SUPPORT_STAFF, ...WRITE_ROLES];
 
 export async function GET(_request, { params }) {
-  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser(READ_ROLES);
   if (error) return error;
   await connectDB();
   const product = await Product.findById(params.id).lean();
@@ -26,57 +21,39 @@ export async function GET(_request, { params }) {
 }
 
 export async function PATCH(request, { params }) {
-  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser(WRITE_ROLES);
   if (error) return error;
-  const body = await request.json();
+  const body = await request.json().catch(() => ({}));
   await connectDB();
   const product = await Product.findById(params.id);
   if (!product) return json({ error: "Product not found." }, 404);
   const denied = requireBusinessAccess(user, product.businessId);
   if (denied) return denied;
 
-  if (user.role === ROLES.STAFF) {
+  if ([ROLES.BUSINESS_STAFF, ROLES.STAFF].includes(user.role)) {
     const update = {};
     if (body.isAvailable !== undefined && canStaff(user, "canEditAvailability")) update.isAvailable = Boolean(body.isAvailable);
+    if (body.isSoldOut !== undefined && canStaff(user, "canEditAvailability")) update.isSoldOut = Boolean(body.isSoldOut);
     if (body.price !== undefined && canStaff(user, "canEditProducts")) update.price = Number(body.price || 0);
     Object.assign(product, update);
   } else {
+    const next = sanitizeProductInput({ ...product.toObject(), ...body });
     const wasARProduct = Boolean(product.hasARModel);
-    const nextModelGlbUrl = body.modelGlbUrl !== undefined ? body.modelGlbUrl : product.modelGlbUrl;
-    const nextModelUsdzUrl = body.modelUsdzUrl !== undefined ? body.modelUsdzUrl : product.modelUsdzUrl;
-    const nextHasARModel = Boolean(nextModelGlbUrl || nextModelUsdzUrl || body.hasARModel);
-
-    if (!wasARProduct && nextHasARModel) {
+    if (!wasARProduct && next.hasARModel) {
       const business = await Business.findById(product.businessId);
       const arCount = await Product.countDocuments({ businessId: product.businessId, hasARModel: true });
       if (arCount >= Number(business?.arProductLimit || 0)) {
         return json({ error: `${business?.subscriptionPlan || "Starter"} includes ${business?.arProductLimit || 0} AR/3D products. Upgrade or buy an AR add-on to add this model.` }, 403);
       }
     }
-
-    const fields = ["name", "category", "description", "shortDescription", "imageUrl", "fabricImageUrl", "stitchedPreviewImageUrl", "stitchedPreviewNotes", "modelGlbUrl", "modelUsdzUrl", "offerText"];
-    for (const field of fields) if (body[field] !== undefined) product[field] = body[field];
-    if (body.productType !== undefined) product.productType = PRODUCT_TYPES.includes(body.productType) ? body.productType : "STANDARD";
-    if (body.stockStatus !== undefined) product.stockStatus = STOCK_STATUSES.includes(body.stockStatus) ? body.stockStatus : "IN_STOCK";
-    if (body.price !== undefined) product.price = Number(body.price || 0);
-    if (body.discountPrice !== undefined) product.discountPrice = Number(body.discountPrice || 0);
-    if (body.fileSizeMB !== undefined) product.fileSizeMB = mb(body.fileSizeMB || 0);
-    if (body.modelFileSizeMB !== undefined) product.modelFileSizeMB = mb(body.modelFileSizeMB || 0);
-    if (body.stockQuantity !== undefined) product.stockQuantity = Number(body.stockQuantity || 0);
-    if (body.supportsRotation !== undefined) product.supportsRotation = Boolean(body.supportsRotation || nextHasARModel);
-    if (body.showStockToCustomers !== undefined) product.showStockToCustomers = Boolean(body.showStockToCustomers);
-    if (body.isAvailable !== undefined) product.isAvailable = Boolean(body.isAvailable);
-    if (body.isFeatured !== undefined) product.isFeatured = Boolean(body.isFeatured);
-    product.hasARModel = nextHasARModel;
-    if (body.galleryImages !== undefined) product.galleryImages = toList(body.galleryImages);
-    if (body.tags !== undefined) product.tags = toList(body.tags);
+    Object.assign(product, next);
   }
   await product.save();
   return json({ product });
 }
 
 export async function DELETE(request, { params }) {
-  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.BUSINESS_OWNER]);
+  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN, ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER]);
   if (error) return error;
   await connectDB();
   const product = await Product.findById(params.id);
@@ -84,7 +61,7 @@ export async function DELETE(request, { params }) {
   const denied = requireBusinessAccess(user, product.businessId);
   if (denied) return denied;
   await product.deleteOne();
-  if (user.role === ROLES.SUPER_ADMIN) {
+  if ([ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN].includes(user.role)) {
     await writeAudit({ actor: user, action: "product deleted", targetType: "Product", targetId: params.id, description: product.name, request });
   }
   return json({ ok: true });

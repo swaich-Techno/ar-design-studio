@@ -6,7 +6,7 @@ import Business from "@/models/Business";
 import TableQR from "@/models/TableQR";
 
 export async function GET() {
-  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.BUSINESS_STAFF, ROLES.STAFF]);
   if (error) return error;
   await connectDB();
   const tables = await TableQR.find({ businessId: user.businessId }).sort({ tableNumber: 1 }).lean();
@@ -14,7 +14,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER]);
+  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER]);
   if (error) return error;
   const body = await request.json();
   if (!body.tableNumber) return json({ error: "Table number is required." }, 400);

@@ -30,7 +30,15 @@ const empty = {
   stockStatus: "IN_STOCK",
   stockQuantity: 0,
   showStockToCustomers: true,
-  isFeatured: false
+  isFeatured: false,
+  isBestSeller: false,
+  isNewItem: false,
+  isTodaysSpecial: false,
+  isSoldOut: false,
+  isHidden: false,
+  dietary: "",
+  sortOrder: 0,
+  calories: ""
 };
 
 export function ProductForm({ productId }) {
@@ -211,6 +219,22 @@ export function ProductForm({ productId }) {
       <div className="flex flex-wrap gap-4">
         <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={form.isAvailable} onChange={(e) => update("isAvailable", e.target.checked)} /> Available</label>
         <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={form.isFeatured} onChange={(e) => update("isFeatured", e.target.checked)} /> Featured</label>
+        <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={form.isBestSeller} onChange={(e) => update("isBestSeller", e.target.checked)} /> Best seller</label>
+        <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={form.isNewItem} onChange={(e) => update("isNewItem", e.target.checked)} /> New</label>
+        <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={form.isTodaysSpecial} onChange={(e) => update("isTodaysSpecial", e.target.checked)} /> Today’s special</label>
+        <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={form.isSoldOut} onChange={(e) => update("isSoldOut", e.target.checked)} /> Sold out</label>
+        <label className="flex items-center gap-2 font-bold"><input type="checkbox" checked={form.isHidden} onChange={(e) => update("isHidden", e.target.checked)} /> Hidden</label>
+      </div>
+      <div className="grid gap-4 rounded-[22px] border border-slate-200 bg-slate-50 p-4 md:grid-cols-3">
+        <select className="field" value={form.dietary || ""} onChange={(e) => update("dietary", e.target.value)}>
+          <option value="">Dietary (optional)</option>
+          <option value="VEG">Veg</option>
+          <option value="NON_VEG">Non-veg</option>
+          <option value="EGG">Egg</option>
+          <option value="VEGAN">Vegan</option>
+        </select>
+        <input className="field" type="number" placeholder="Sort order" value={form.sortOrder || 0} onChange={(e) => update("sortOrder", e.target.value)} />
+        <input className="field" type="number" placeholder="Calories (only if supplied)" value={form.calories || ""} onChange={(e) => update("calories", e.target.value)} />
       </div>
       <p className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-bold text-orange-700">New or edited products go to Super Admin / AR Manager approval before they become public.</p>
       {error ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p> : null}

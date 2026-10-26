@@ -13,9 +13,9 @@ export async function GET(_request, { params }) {
       products: []
     });
   }
-  const products = await Product.find({ businessId: business._id, isAvailable: true })
-    .select("name slug category price discountPrice shortDescription imageUrl offerText isFeatured")
-    .sort({ isFeatured: -1, createdAt: -1 })
+  const products = await Product.find({ businessId: business._id, isAvailable: true, isHidden: { $ne: true }, publicationStatus: { $in: ["APPROVED", "PUBLISHED"] } })
+    .select("name slug category price discountPrice shortDescription imageUrl offerText isFeatured isBestSeller isNewItem isTodaysSpecial isSoldOut dietary hasARModel modelGlbUrl stockStatus sortOrder variants addons")
+    .sort({ isFeatured: -1, sortOrder: 1, createdAt: -1 })
     .lean();
   return NextResponse.json({
     business: {

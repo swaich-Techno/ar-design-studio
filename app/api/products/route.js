@@ -3,50 +3,21 @@ import { json, requireUser } from "@/lib/api";
 import { productPublicUrl } from "@/lib/qr";
 import { slugify, uniqueSlug } from "@/lib/slugify";
 import { ROLES, canStaff } from "@/lib/permissions";
-import { mb } from "@/lib/plans";
+import { sanitizeProductInput } from "@/lib/productFields";
 import Business from "@/models/Business";
 import Product from "@/models/Product";
 
-const PRODUCT_TYPES = ["STANDARD", "FABRIC", "GARMENT", "FURNITURE", "JEWELLERY", "FOOD", "REAL_ESTATE", "AUTOMOBILE"];
-const STOCK_STATUSES = ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK", "MADE_TO_ORDER"];
-
-function sanitize(body) {
-  const hasARModel = Boolean(body.modelGlbUrl || body.modelUsdzUrl || body.hasARModel);
-  return {
-    name: body.name,
-    category: body.category || "General",
-    price: Number(body.price || 0),
-    discountPrice: Number(body.discountPrice || 0),
-    description: body.description || "",
-    shortDescription: body.shortDescription || "",
-    imageUrl: body.imageUrl || "",
-    galleryImages: Array.isArray(body.galleryImages) ? body.galleryImages : String(body.galleryImages || "").split(",").map((x) => x.trim()).filter(Boolean),
-    fileSizeMB: mb(body.fileSizeMB || 0),
-    productType: PRODUCT_TYPES.includes(body.productType) ? body.productType : "STANDARD",
-    fabricImageUrl: body.fabricImageUrl || "",
-    stitchedPreviewImageUrl: body.stitchedPreviewImageUrl || "",
-    stitchedPreviewNotes: body.stitchedPreviewNotes || "",
-    supportsRotation: Boolean(body.supportsRotation || hasARModel),
-    modelGlbUrl: body.modelGlbUrl || "",
-    modelUsdzUrl: body.modelUsdzUrl || "",
-    modelFileSizeMB: mb(body.modelFileSizeMB || 0),
-    hasARModel,
-    offerText: body.offerText || "",
-    tags: Array.isArray(body.tags) ? body.tags : String(body.tags || "").split(",").map((x) => x.trim()).filter(Boolean),
-    isAvailable: body.isAvailable !== false,
-    stockStatus: STOCK_STATUSES.includes(body.stockStatus) ? body.stockStatus : "IN_STOCK",
-    stockQuantity: Number(body.stockQuantity || 0),
-    showStockToCustomers: body.showStockToCustomers !== false,
-    isFeatured: Boolean(body.isFeatured)
-  };
-}
+const WRITE_ROLES = [ROLES.BUSINESS_OWNER, ROLES.BUSINESS_MANAGER, ROLES.BUSINESS_STAFF, ROLES.STAFF];
+const READ_ROLES = [ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN, ROLES.AR_MANAGER, ROLES.SUPPORT_STAFF, ...WRITE_ROLES];
 
 export async function GET() {
-  const { user, error } = await requireUser([ROLES.SUPER_ADMIN, ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser(READ_ROLES);
   if (error) return error;
   await connectDB();
-  const query = user.role === ROLES.SUPER_ADMIN ? {} : { businessId: user.businessId };
-  const products = await Product.find(query).sort({ createdAt: -1 }).lean();
+  const query = [ROLES.SUPER_ADMIN, ROLES.TEAM_ADMIN, ROLES.AR_MANAGER, ROLES.SUPPORT_STAFF].includes(user.role)
+    ? {}
+    : { businessId: user.businessId };
+  const products = await Product.find(query).sort({ sortOrder: 1, createdAt: -1 }).lean();
   const business = user.businessId ? await Business.findById(user.businessId).lean() : null;
   return json({
     products: products.map((product) => ({
@@ -59,11 +30,14 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const { user, error } = await requireUser([ROLES.BUSINESS_OWNER, ROLES.STAFF]);
+  const { user, error } = await requireUser(WRITE_ROLES);
   if (error) return error;
-  if (user.role === ROLES.STAFF && !canStaff(user, "canEditProducts")) return json({ error: "Staff product editing is disabled." }, 403);
-  const body = await request.json();
-  if (!body.name) return json({ error: "Product name is required." }, 400);
+  if ([ROLES.BUSINESS_STAFF, ROLES.STAFF].includes(user.role) && !canStaff(user, "canEditProducts")) {
+    return json({ error: "Staff product editing is disabled." }, 403);
+  }
+  const body = await request.json().catch(() => ({}));
+  const productData = sanitizeProductInput(body);
+  if (!productData.name) return json({ error: "Product name is required." }, 400);
 
   await connectDB();
   const business = await Business.findById(user.businessId);
@@ -71,7 +45,6 @@ export async function POST(request) {
   const count = await Product.countDocuments({ businessId: business._id });
   if (count >= business.productLimit) return json({ error: "Product limit reached for this plan." }, 403);
 
-  const productData = sanitize(body);
   if (productData.hasARModel) {
     const arCount = await Product.countDocuments({ businessId: business._id, hasARModel: true });
     if (arCount >= Number(business.arProductLimit || 0)) {
@@ -79,12 +52,12 @@ export async function POST(request) {
     }
   }
 
-  const baseSlug = slugify(body.name);
+  const baseSlug = slugify(productData.name);
   const exists = await Product.exists({ businessId: business._id, slug: baseSlug });
   const product = await Product.create({
     ...productData,
     businessId: business._id,
-    slug: exists ? uniqueSlug(body.name, Date.now().toString()) : baseSlug
+    slug: exists ? uniqueSlug(productData.name, Date.now().toString()) : baseSlug
   });
 
   return json({ product: { ...product.toObject(), publicUrl: productPublicUrl(business.slug, product.slug) } }, 201);
