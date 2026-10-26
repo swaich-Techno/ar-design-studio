@@ -18,6 +18,8 @@
   --burgundy-2: #4a161d;
   --amber: #d4783a;
   --cream: #f3e6d0;
+  --on-primary: #111111;
+  --on-gold: #1a1206;
   --tomato: #c44536;
   --herb: #4a7c59;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -2438,3 +2440,22 @@
   }
 }
 
+
+
+/* Shared controls: explicit foregrounds survive the shell's link reset. */
+.marketing-shell [data-slot="button"][data-variant="primary"] {color:var(--on-primary)}
+.marketing-shell [data-slot="button"][data-variant="gold"] {color:var(--on-gold)}
+.marketing-shell .ar-nav-link[aria-current="page"] {background:var(--bg-3);color:var(--fg)}
+.marketing-shell .ar-nav-link:focus-visible {outline-color:var(--gold)}
+.marketing-shell .ar-hero-player {position:relative;width:100%;height:100%}
+.marketing-shell .hero-motion-control {position:absolute;right:12px;top:12px;z-index:5;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg-2);color:var(--fg);font-size:12px;cursor:pointer}
+.marketing-shell .hero-motion-control svg {width:14px;height:14px}
+.marketing-shell .ar-hero-player[data-paused="true"] .ar-hero-loop * {animation-play-state:paused!important}
+.marketing-shell .studio-entry {display:inline-flex;align-items:center;gap:14px;min-height:60px;margin-top:20px;padding:12px 0;color:var(--fg)}
+.marketing-shell .studio-entry strong {font-size:14px;font-weight:500}
+.marketing-shell .studio-entry small {display:block;color:var(--muted);font-size:12px;margin-top:3px}
+.marketing-shell .studio-entry>svg {color:var(--gold);width:20px;height:20px;flex-shrink:0}
+@media(prefers-reduced-motion:reduce) {
+  .marketing-shell .cursor-dot,.marketing-shell .cursor-ring {display:none!important}
+  .marketing-shell .has-custom-cursor,.marketing-shell .has-custom-cursor * {cursor:auto}
+}

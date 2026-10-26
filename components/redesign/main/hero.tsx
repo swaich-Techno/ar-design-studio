@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Box, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/redesign/ui/button";
 import { Magnetic } from "@/components/redesign/ui/magnetic";
 import { ArBeatCaption } from "@/components/redesign/ar/beat-caption";
@@ -58,7 +59,7 @@ export function MainHero() {
             </a>
           </div>
           <p className="mt-5 text-xs uppercase tracking-[0.2em] text-muted">{copy.ar.trust}</p>
-          <Link href="/ar/create" className="mt-4 inline-flex min-h-11 items-center text-sm text-[#dfbd82] underline underline-offset-4">Try Photo Studio — experimental photo to 3D →</Link>
+          <Link href="/ar/create" className="studio-entry"><Box aria-hidden="true"/><span><strong>Try Photo Studio</strong><small>Experimental photo to 3D</small></span><ArrowUpRight aria-hidden="true"/></Link>
         </div>
       </div>
     </section>

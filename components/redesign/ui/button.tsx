@@ -4,15 +4,15 @@ import * as React from "react";
 import { cn } from "@/lib/redesign/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[transform,background,color,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none min-h-11 px-5",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[transform,background,color,border-color,box-shadow] duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--gold)] active:scale-[0.97] motion-reduce:transform-none motion-reduce:transition-none min-h-11 px-5",
   {
     variants: {
       variant: {
         primary:
-          "bg-[var(--fg)] text-[#111] hover:bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_10px_30px_rgba(0,0,0,0.35)]",
+          "bg-[var(--fg)] text-[var(--on-primary)] hover:bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_10px_30px_rgba(0,0,0,0.35)]",
         ghost:
           "bg-transparent text-[var(--fg)] border border-white/15 hover:border-white/40 hover:bg-white/5",
-        gold: "bg-[var(--gold)] text-[#1a1206] hover:bg-[var(--champagne)]",
+        gold: "bg-[var(--gold)] text-[var(--on-gold)] hover:bg-[var(--champagne)]",
         accent:
           "bg-[var(--accent)] text-white hover:bg-[var(--accent-2)]",
       },
@@ -41,6 +41,7 @@ export function Button({
   return (
     <Comp
       data-slot="button"
+      data-variant={variant || "primary"}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

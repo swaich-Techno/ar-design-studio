@@ -27,6 +27,7 @@ export function SiteChrome({
     path.startsWith("/super-admin");
   const isImmersive =
     /^\/ar\/demo\/[^/]+$/.test(path) || path.startsWith("/ar/try-on");
+  const isStudio = path === "/ar/create";
   // AR domain homepage + /ar/* use AR chrome. Dashboards never use this shell.
   const isAr = !isDashboard && (arHost || path === "/" || path.startsWith("/ar"));
 
@@ -41,13 +42,13 @@ export function SiteChrome({
       <ScanOverlay>
         <Grain />
         <ScrollProgress />
-        <CustomCursor />
+        {isStudio ? null : <CustomCursor />}
         {isImmersive ? null : isAr ? <ArNav ready /> : <MainNav ready />}
         <main id="main-content" className="relative flex-1">
           {children}
         </main>
         {isImmersive ? null : <SiteFooter ar={isAr} />}
-        {isImmersive ? null : <MobileCta ar={isAr} />}
+        {isImmersive || isStudio ? null : <MobileCta ar={isAr} />}
       </ScanOverlay>
     </>
   );

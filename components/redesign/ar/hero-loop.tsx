@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/redesign/utils";
 
@@ -56,12 +57,10 @@ function makeParticles(kind: ArHeroKind): Particle[] {
 
 function HeroFxCanvas({ kind, active }: { kind: ArHeroKind; active: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const activeRef = useRef(active);
-  activeRef.current = active;
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !active) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
@@ -99,7 +98,6 @@ function HeroFxCanvas({ kind, active }: { kind: ArHeroKind; active: boolean }) {
       raf = window.requestAnimationFrame(draw);
       const dt = Math.min(48, now - last);
       last = now;
-      if (!activeRef.current) return;
 
       const w = canvas.width;
       const h = canvas.height;
@@ -159,7 +157,7 @@ function HeroFxCanvas({ kind, active }: { kind: ArHeroKind; active: boolean }) {
       window.cancelAnimationFrame(raf);
       ro.disconnect();
     };
-  }, [kind]);
+  }, [kind, active]);
 
   return <canvas ref={canvasRef} className="ar-hero-loop__canvas" aria-hidden />;
 }
@@ -168,10 +166,12 @@ function StillPlate({
   kind,
   active,
   priority,
+  paused,
 }: {
   kind: ArHeroKind;
   active: boolean;
   priority?: boolean;
+  paused: boolean;
 }) {
   const still = AR_HERO_STILLS[kind];
 
@@ -223,7 +223,7 @@ function StillPlate({
           <span key={n} className={`ar-hero-loop__dust d${n}`} />
         ))}
       </div>
-      <HeroFxCanvas kind={kind} active={active} />
+      <HeroFxCanvas kind={kind} active={active && !paused} />
     </div>
   );
 }
@@ -241,6 +241,13 @@ export function ArHeroLoop({
   className?: string;
   priority?: boolean;
 }) {
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setPaused(mq.matches);
+    sync(); mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
   const rotating = swap && !kind;
   const [shown, setShown] = useState<ArHeroKind>(kind ?? lockKind ?? "food");
 
@@ -268,13 +275,16 @@ export function ArHeroLoop({
   const label = AR_HERO_STILLS[shown].alt;
 
   return (
+    <div className="ar-hero-player" data-paused={paused}>
     <div className={cn("ar-hero-loop", className)} data-kind={shown} role="img" aria-label={label}>
       <div className="ar-hero-loop__stage">
         {showJewellery ? (
-          <StillPlate kind="jewellery" active={jewelleryOn} priority={priority && jewelleryOn} />
+          <StillPlate kind="jewellery" paused={paused} active={jewelleryOn} priority={priority && jewelleryOn} />
         ) : null}
-        {showFood ? <StillPlate kind="food" active={!jewelleryOn} priority={priority && !jewelleryOn} /> : null}
+        {showFood ? <StillPlate kind="food" paused={paused} active={!jewelleryOn} priority={priority && !jewelleryOn} /> : null}
       </div>
+    </div>
+    <button type="button" className="hero-motion-control" aria-pressed={paused} onClick={() => setPaused(value => !value)}>{paused ? <Play aria-hidden="true"/> : <Pause aria-hidden="true"/>}{paused ? "Play animation" : "Pause animation"}</button>
     </div>
   );
 }

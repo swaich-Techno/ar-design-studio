@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArLogo } from "@/components/redesign/brand/logo";
 import { Button } from "@/components/redesign/ui/button";
 import { Magnetic } from "@/components/redesign/ui/magnetic";
@@ -20,6 +21,8 @@ const links = [
 ];
 
 export function ArNav({ ready: _ready }: { ready: boolean }) {
+  const pathname = usePathname();
+  const reducedMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -33,10 +36,7 @@ export function ArNav({ ready: _ready }: { ready: boolean }) {
   const [hover, setHover] = useState<"food" | null>(null);
 
   return (
-    <motion.header
-      initial={false}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+    <header
       className="fixed inset-x-0 top-0 z-50"
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-4 md:px-8">
@@ -48,7 +48,8 @@ export function ArNav({ ready: _ready }: { ready: boolean }) {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-full px-3 py-1.5 text-[0.78rem] tracking-wide text-[var(--fg)]/80 transition-colors hover:text-white"
+              aria-current={pathname === link.href ? "page" : undefined}
+              className="ar-nav-link inline-flex min-h-11 items-center rounded-full px-3 text-[0.78rem] text-[var(--fg)]/80 transition-colors hover:text-white"
               onMouseEnter={() => setHover(link.preview ?? null)}
               onMouseLeave={() => setHover(null)}
             >
@@ -97,14 +98,15 @@ export function ArNav({ ready: _ready }: { ready: boolean }) {
             id="ar-mobile-menu"
             role="navigation"
             aria-label="Mobile AR navigation"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="mx-5 optical-glass rounded-3xl p-5 xl:hidden"
+            initial={{ opacity: 0, transform: reducedMotion ? "none" : "translateY(-8px)" }}
+            animate={{ opacity: 1, transform: "translateY(0)" }}
+            exit={{ opacity: 0, transform: reducedMotion ? "none" : "translateY(-8px)" }}
+            transition={{ duration: reducedMotion ? 0 : 0.18 }}
+            className="mx-5 max-h-[75svh] overflow-y-auto overscroll-contain optical-glass rounded-3xl p-5 xl:hidden"
           >
             <div className="flex flex-col gap-3">
               {links.map((link) => (
-                <Link key={link.href} href={link.href} onClick={() => setOpen(false)} className="min-h-11 font-display text-2xl">
+                <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined} onClick={() => setOpen(false)} className="min-h-11 font-display text-2xl">
                   {link.label}
                 </Link>
               ))}
@@ -126,6 +128,6 @@ export function ArNav({ ready: _ready }: { ready: boolean }) {
           </motion.div>
         ) : null}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }
