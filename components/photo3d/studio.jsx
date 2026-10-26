@@ -13,11 +13,11 @@ async function preparePhoto(file) {
   const image=await createImageBitmap(file);
   try{
     if(image.width<96 || image.height<96 || image.width*image.height>24000000)throw new Error("Use a clear photograph at least 96 pixels wide and under 24 megapixels.");
-    const factor=Math.min(1,1024/Math.max(image.width,image.height));
+    const factor=Math.min(1,768/Math.max(image.width,image.height));
     const canvas=document.createElement("canvas");canvas.width=Math.round(image.width*factor);canvas.height=Math.round(image.height*factor);
     canvas.getContext("2d").drawImage(image,0,0,canvas.width,canvas.height);
     const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
-    if(!blob || blob.size>10*1024*1024)throw new Error("This photo is too large after preparation. Choose a smaller one.");
+    if(!blob || blob.size>3*1024*1024)throw new Error("This photo is too large after preparation. Choose a smaller one.");
     return new File([blob],"product.png",{type:"image/png"});
   }finally{image.close();}
 }
@@ -69,7 +69,7 @@ export function PhotoStudio(){
     if(!navigator.onLine){setError("Generating a new model needs internet. Your saved previews can still be opened below.");return;}
     const token=++run.current;const abort=new AbortController();controller.current=abort;setBusy(true);setError("");setWarning("");setNotice("");setModel(null);setViews([]);setViewerReady(false);
     try{
-      const {generateFromPhoto}=await import("@/lib/photo3d/engine.mjs");
+      const {generateFromPhoto}=await import("@/lib/photo3d/remote.mjs");
       const result=await generateFromPhoto(photo,{signal:abort.signal,onStage:text=>{if(run.current===token)setStage(text);},onPreview:items=>{if(run.current===token)setViews(items);}});
       if(run.current!==token)return;
       setViews(result.views);setModel(result.model);setWarning(result.warning);setSource("ai");

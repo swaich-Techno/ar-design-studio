@@ -408,3 +408,5 @@ The external free GPU service may reject generation or GLB export because of quo
 Business publishing uses existing account upload limits and approval. QR creation checks a same-origin public product API response with a GLB before encoding its product URL. A local draft does not create a public product.
 
 Verification: `npm run test:photo-studio`, `npm run smoke`, `npm run build`. JSX/MJS lint: `node node_modules/eslint/bin/eslint.js --ext .jsx,.mjs components/photo3d lib/photo3d`.
+
+The generation bridge at `/api/photo-studio/generate` streams progress, views, and model bytes. It accepts only an explicit-consent, same-origin photo request, limits prepared photos to 3 MB, uses a 300-second function budget, and applies an in-memory best-effort attempt limit. API responses are never cached by the service worker. Existing hosting usage limits apply; this is a small experimental pilot, not an unlimited free service.

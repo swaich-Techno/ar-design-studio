@@ -103,3 +103,45 @@ test("cancelled generation never opens a provider session",async()=>{
   const controller=new AbortController();controller.abort();let connections=0;
   await assert.rejects(generateFromPhoto(new Blob(["test"]),{signal:controller.signal,clientFactory:async()=>{connections++;}}),/cancelled/i);assert.equal(connections,0);
 });
+
+const {handleGeneration}=await import("../lib/photo3d/generation-handler.mjs");
+const {readGenerationResponse}=await import("../lib/photo3d/remote.mjs");
+function generationRequest({consent="true",origin="https://ar.bsocio.in",photo=true}={}){
+  const form=new FormData();form.append("consent",consent);
+  if(photo)form.append("photo",new Blob([new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,0,0,0,0,0])],{type:"image/png"}),"product.png");
+  return new Request("https://ar.bsocio.in/api/photo-studio/generate",{method:"POST",headers:{Origin:origin},body:form});
+}
+const allowAttempt=()=>({ok:true});
+test("generation bridge rejects cross-origin requests before calling a provider",async()=>{
+  let calls=0;const response=await handleGeneration(generationRequest({origin:"https://evil.example"}),{limit:allowAttempt,generator:async()=>{calls++;}});
+  assert.equal(response.status,403);assert.equal(calls,0);
+});
+test("generation bridge requires explicit processing consent and a photo",async()=>{
+  assert.equal((await handleGeneration(generationRequest({consent:"false"}),{limit:allowAttempt})).status,400);
+  assert.equal((await handleGeneration(generationRequest({photo:false}),{limit:allowAttempt})).status,400);
+});
+test("generation bridge rejects overlarge bodies before reading them",async()=>{
+  const request=new Request("https://ar.bsocio.in/api/photo-studio/generate",{method:"POST",headers:{Origin:"https://ar.bsocio.in","Content-Length":String(5*1024*1024)},body:"x"});
+  assert.equal((await handleGeneration(request,{limit:allowAttempt})).status,413);
+});
+test("generation bridge stops attempts when its free limit is reached",async()=>{
+  const response=await handleGeneration(generationRequest(),{limit:()=>({ok:false,retryAfterSec:3600})});
+  assert.equal(response.status,429);assert.equal(response.headers.get("retry-after"),"3600");
+});
+test("browser client receives streamed previews even when no GLB can be exported",async()=>{
+  const preview=[{label:"view",src:"data:image/png;base64,AA=="}];
+  const response=await handleGeneration(generationRequest(),{limit:allowAttempt,generator:async(file,callbacks)=>{callbacks.onStage("Generating");callbacks.onPreview(preview);return{views:preview,model:null,warning:"Free GPU quota unavailable"};}});
+  const stages=[];let seen;
+  const result=await readGenerationResponse(response,{onStage:value=>stages.push(value),onPreview:views=>{seen=views;}});
+  assert.equal(result.model,null);assert.equal(result.views.length,1);assert.equal(seen.length,1);assert.match(result.warning,/quota/);assert.ok(stages.includes("Generating"));
+});
+test("streamed GLB is validated and restored as a local model Blob",async()=>{
+  const bytes=glb();
+  const response=await handleGeneration(generationRequest(),{limit:allowAttempt,generator:async()=>({model:new Blob([bytes]),views:[],warning:""})});
+  const result=await readGenerationResponse(response);
+  assert.equal(result.model.size,bytes.byteLength);assert.doesNotThrow(()=>validateGlb(bytes));
+});
+test("truncated generation streams cannot report success",async()=>{
+  const response=new Response('{"type":"stage","message":"Generating"}\n');
+  await assert.rejects(readGenerationResponse(response),/before generation finished/);
+});

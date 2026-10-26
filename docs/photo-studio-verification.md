@@ -16,7 +16,7 @@ Scope: add an experimental, zero-paid-API photo-to-3D creation route to the exis
 
 ## Completed checks
 
-- 21 automated feature checks passed, including malformed assets, external model dependencies, shaded-view selection, quota failure preservation, cancellation, QR restrictions, and offline routing.
+- 28 automated feature checks passed, including malformed assets, external model dependencies, shaded-view selection, quota failure preservation, cancellation, QR restrictions, and offline routing.
 - Existing 16 smoke assertions passed.
 - Production build passed. Focused lint passed with direct-image warnings and an existing unused navigation prop warning.
 - Browser: photo upload, consent gating, external QR rejection, GLB import/rendering, offline save completion, full reload and saved-draft reopening passed.
@@ -29,7 +29,7 @@ The real test returned 8 angle views. The input photo contained a café backgrou
 
 GLB extraction was rejected by the free service's GPU quota. No paid fallback was invoked. Successful end-to-end automatic GLB export therefore remains unverified.
 
-A browser metadata lookup failure was diagnosed; the adapter now connects to the Space's documented direct URL instead of depending on an additional metadata lookup.
+Browser access to the external service failed. The browser now uses a same-origin, bounded streaming route; the server connects to the official Space URL. The bridge requires processing consent, rejects cross-origin POSTs, caps uploads below the platform body limit, applies a best-effort attempt limit, and supports cancellation. It has no paid inference fallback. Existing hosting usage limits still apply.
 
 ## Remaining limits
 
