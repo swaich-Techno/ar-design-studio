@@ -397,3 +397,14 @@ npm run build
 ```
 
 This project has been validated with a production build.
+
+
+## Experimental Photo Studio
+
+`/ar/create` provides local photo preparation, an opt-in adapter to the public Microsoft TRELLIS.2 Hugging Face Space, generated-angle extraction, GLB import/viewing, local IndexedDB drafts, explicit offline shell saving, and a handoff into the authenticated product form. There is no paid inference fallback or new server-side credential.
+
+The external free GPU service may reject generation or GLB export because of quota. Angle previews are preserved when export fails; the UI never labels them as an exported model. Single-photo hidden surfaces and size remain estimates. Generation requires internet; saved viewing uses local files. Physical phone AR and camera permission remain device dependent.
+
+Business publishing uses existing account upload limits and approval. QR creation checks a same-origin public product API response with a GLB before encoding its product URL. A local draft does not create a public product.
+
+Verification: `npm run test:photo-studio`, `npm run smoke`, `npm run build`. JSX/MJS lint: `node node_modules/eslint/bin/eslint.js --ext .jsx,.mjs components/photo3d lib/photo3d`.

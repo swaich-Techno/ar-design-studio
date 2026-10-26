@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArLogo } from "@/components/redesign/brand/logo";
 import { Button } from "@/components/redesign/ui/button";
@@ -12,6 +12,7 @@ import { site, waLink } from "@/lib/redesign/site";
 const links = [
   { href: "/ar/food", label: "Food", preview: "food" as const },
   { href: "/ar/demo", label: "Demo" },
+  { href: "/ar/create", label: "Photo studio" },
   { href: "/ar/pricing", label: "Pricing" },
   { href: "/ar/how-it-works", label: "How it works" },
   { href: "/ar/food-businesses", label: "Food businesses" },
@@ -20,6 +21,15 @@ const links = [
 
 export function ArNav({ ready: _ready }: { ready: boolean }) {
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setOpen(false); toggleRef.current?.focus(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
   const [hover, setHover] = useState<"food" | null>(null);
 
   return (
@@ -33,7 +43,7 @@ export function ArNav({ ready: _ready }: { ready: boolean }) {
         <div className="optical-glass rounded-full px-3 py-2">
           <ArLogo />
         </div>
-        <nav className="optical-glass relative hidden items-center gap-1 rounded-full px-2 py-1.5 lg:flex" aria-label="AR primary">
+        <nav className="optical-glass relative hidden items-center gap-1 rounded-full px-2 py-1.5 xl:flex" aria-label="AR primary">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -68,7 +78,9 @@ export function ArNav({ ready: _ready }: { ready: boolean }) {
           </Magnetic>
         </div>
         <button
-          className="optical-glass grid h-11 w-11 place-items-center rounded-full lg:hidden"
+          ref={toggleRef}
+          aria-controls="ar-mobile-menu"
+          className="optical-glass grid h-11 w-11 place-items-center rounded-full xl:hidden"
           aria-expanded={open}
           aria-label={open ? "Close menu" : "Open menu"}
           onClick={() => setOpen((v) => !v)}
@@ -82,10 +94,13 @@ export function ArNav({ ready: _ready }: { ready: boolean }) {
       <AnimatePresence>
         {open ? (
           <motion.div
+            id="ar-mobile-menu"
+            role="navigation"
+            aria-label="Mobile AR navigation"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="mx-5 optical-glass rounded-3xl p-5 lg:hidden"
+            className="mx-5 optical-glass rounded-3xl p-5 xl:hidden"
           >
             <div className="flex flex-col gap-3">
               {links.map((link) => (

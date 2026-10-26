@@ -19,6 +19,7 @@ export function SiteFooter({ ar }: { ar: boolean }) {
           <div className="flex flex-col gap-2 text-[var(--fg)]/80">
             <Link href="/ar/food">Food</Link>
             <Link href="/ar/demo">Demo</Link>
+            <Link href="/ar/create">Photo studio · experimental</Link>
             <Link href="/ar/pricing">Pricing</Link>
             <Link href="/ar/how-it-works">How it works</Link>
             <Link href="/ar/food-businesses">Food businesses</Link>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { PhotoDraftImport } from "@/components/photo3d/draft-import";
 import { ImageUploadField } from "@/components/forms/ImageUploadField";
 
 const empty = {
@@ -101,6 +102,7 @@ export function ProductForm({ productId }) {
 
   return (
     <form onSubmit={submit} className="grid gap-5 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+      <PhotoDraftImport productId={productId} onImport={(draft) => setForm((current) => ({ ...current, ...draft }))} />
       <div className="grid gap-4 md:grid-cols-2">
         <input className="field" placeholder="Product name" value={form.name} onChange={(e) => update("name", e.target.value)} required />
         <input className="field" placeholder="Category" value={form.category} onChange={(e) => update("category", e.target.value)} />

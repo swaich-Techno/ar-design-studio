@@ -12,10 +12,12 @@
     "generate:try-on-earrings": "node scripts/generate-tryon-earrings.mjs",
     "generate:try-on-ring": "node scripts/generate-tryon-ring.mjs",
     "generate:try-on-assets": "python3 scripts/process-tryon-assets.py",
-    "generate:try-on-neck": "node scripts/generate-tryon-neck.mjs"
+    "generate:try-on-neck": "node scripts/generate-tryon-neck.mjs",
+    "test:photo-studio": "node --test tests/photo-studio.test.mjs"
   },
   "dependencies": {
     "@google/model-viewer": "^4.1.0",
+    "@gradio/client": "2.7.1",
     "@mediapipe/tasks-vision": "^1.0.1",
     "@radix-ui/react-slot": "^1.3.3",
     "@react-three/drei": "^10.7.8",

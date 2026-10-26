@@ -58,6 +58,7 @@ export function MainHero() {
             </a>
           </div>
           <p className="mt-5 text-xs uppercase tracking-[0.2em] text-muted">{copy.ar.trust}</p>
+          <Link href="/ar/create" className="mt-4 inline-flex min-h-11 items-center text-sm text-[#dfbd82] underline underline-offset-4">Try Photo Studio — experimental photo to 3D →</Link>
         </div>
       </div>
     </section>
